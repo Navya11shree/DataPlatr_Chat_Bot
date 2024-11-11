@@ -1,11 +1,13 @@
-// DataPlatrInterface
-  
 import React, { useState, useEffect } from 'react';
-import { FaChevronCircleDown } from "react-icons/fa";
+import { FaChevronCircleDown, FaArrowLeft } from "react-icons/fa";
 import { BiSolidRightArrow } from "react-icons/bi";
 import { PiPaperPlaneRightFill } from "react-icons/pi";
 import { FaDiagramProject, FaTableCells } from "react-icons/fa6";
-import { FaDatabase, } from "react-icons/fa";
+import { FaDatabase } from "react-icons/fa";
+
+interface DataPlatrInterfaceProps {
+  onBack: () => void;
+}
 
 interface BigQueryError {
   message: string;
@@ -23,7 +25,7 @@ interface TablePreview {
   previewData: any[];
 }
 
-const DataPlatrInterface: React.FC = () => {
+const DataPlatrInterface: React.FC<DataPlatrInterfaceProps> = ({ onBack }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<BigQueryError | null>(null);
   const [projectId, setProjectId] = useState<string>('');
@@ -35,6 +37,8 @@ const DataPlatrInterface: React.FC = () => {
   const [isDatasetDropdownOpen, setIsDatasetDropdownOpen] = useState<boolean>(false);
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState<boolean>(false);
   const [tablePreview, setTablePreview] = useState<TablePreview | null>(null);
+  const [sqlQuery, setSqlQuery] = useState<string>('');
+  const [queryResults, setQueryResults] = useState<TablePreview | null>(null);
 
   useEffect(() => {
     connectToBigQuery();
@@ -128,6 +132,34 @@ const DataPlatrInterface: React.FC = () => {
     }
   };
 
+  const executeQuery = async (): Promise<void> => {
+    if (!sqlQuery.trim()) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('http://localhost:5000/api/execute-query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: sqlQuery })
+      });
+
+      if (!response.ok) throw new Error('Failed to execute query');
+
+      const data: TablePreview = await response.json();
+      setQueryResults(data);
+      setTablePreview(data); // Update the table preview with query results
+    } catch (err) {
+      setError({
+        message: `Failed to execute query: ${err instanceof Error ? err.message : 'Unknown error'}`
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderDropdown = (
     isOpen: boolean,
     items: string[],
@@ -141,11 +173,10 @@ const DataPlatrInterface: React.FC = () => {
       <div className="absolute z-10 mt-1 w-2/3 right-0 bg-white border rounded shadow-lg">
         <div className="max-h-48 overflow-y-auto">
           {items.map((item) => (
-            <div 
+            <div
               key={item}
-              className={`cursor-pointer p-2 hover:bg-gray-200 ${
-                selectedValue === item ? 'bg-blue-100' : ''
-              }`}
+              className={`cursor-pointer p-2 hover:bg-gray-200 ${selectedValue === item ? 'bg-blue-100' : ''
+                }`}
               onClick={() => {
                 onSelect(item);
                 onClose();
@@ -161,7 +192,7 @@ const DataPlatrInterface: React.FC = () => {
 
   const renderTablePreview = () => {
     if (!tablePreview) return null;
-  
+
     return (
       <div className="h-full overflow-auto border rounded-lg shadow-sm bg-gray-50">
         <table className="w-full">
@@ -190,9 +221,8 @@ const DataPlatrInterface: React.FC = () => {
                     key={field.name}
                     className="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
                   >
-                    {/* Check if the field is a date object and format it */}
                     {typeof row[field.name] === 'object' && row[field.name] !== null && 'value' in row[field.name]
-                      ? new Date(row[field.name].value).toLocaleDateString() // Convert to a readable date format
+                      ? new Date(row[field.name].value).toLocaleDateString()
                       : row[field.name]?.toString() || 'null'}
                   </td>
                 ))}
@@ -203,21 +233,27 @@ const DataPlatrInterface: React.FC = () => {
       </div>
     );
   };
-  
 
   return (
     <div className="fixed inset-0 flex flex-col">
       <div className="flex flex-1 min-h-0">
         {/* Sidebar */}
-        <div className="w-[360px] bg-white border-r overflow-y-auto">
+        <div className="w-[360px] bg-white border-r overflow-y-auto max-h-svh">
           <div className="p-4">
             <div className="flex items-center space-x-2 mb-6">
+              <button
+                onClick={onBack}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-150"
+                title="Back to Demo Selection"
+              >
+                <FaArrowLeft className="w-5 h-5 text-gray-600" />
+              </button>
               <img
                 src="https://media.licdn.com/dms/image/v2/D560BAQGd9CNgsgxDGg/company-logo_200_200/company-logo_200_200/0/1727775506558/dataplatrinc_logo?e=1738800000&v=beta&t=M0FwxfZoe-YsswSG5cL9rbwznIxxm2Jbmf6_UFUdlXM"
                 alt="Data Platr chat bot"
                 className="w-8 h-8"
               />
-              <span className="text-3xl font-bold text-black">Data Platr</span>
+              <span className="text-3xl font-bold text-black">Chat Platr</span>
             </div>
 
             <div className="space-y-4">
@@ -228,7 +264,7 @@ const DataPlatrInterface: React.FC = () => {
                     <FaDiagramProject className="w-5 h-5" />
                     Project
                   </label>
-                  <div 
+                  <div
                     className="flex items-center justify-between flex-1 mt-1 p-1.5 border rounded hover:border-gray-400 cursor-pointer"
                     onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
                   >
@@ -252,7 +288,7 @@ const DataPlatrInterface: React.FC = () => {
                     <FaDatabase className="w-5 h-5" />
                     Dataset
                   </label>
-                  <div 
+                  <div
                     className="flex items-center justify-between flex-1 mt-1 p-1.5 border rounded hover:border-gray-400 cursor-pointer"
                     onClick={() => setIsDatasetDropdownOpen(!isDatasetDropdownOpen)}
                   >
@@ -276,7 +312,7 @@ const DataPlatrInterface: React.FC = () => {
                     <FaTableCells className="w-5 h-5" />
                     Table
                   </label>
-                  <div 
+                  <div
                     className="flex items-center justify-between flex-1 mt-1 p-1.5 border rounded hover:border-gray-400 cursor-pointer"
                     onClick={() => setIsTableDropdownOpen(!isTableDropdownOpen)}
                   >
@@ -313,25 +349,43 @@ const DataPlatrInterface: React.FC = () => {
         {/* Main Content */}
         <div className="flex-1 flex flex-col bg-gray-100 min-w-0">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-5 bg-white border-b shadow-sm">
-            <h2 className="text-xl text-gray-600">Table Preview</h2>
-            <BiSolidRightArrow className="w-6 h-6 text-gray-400" />
+          <div className="flex flex-col px-6 py-5 bg-white border-b shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl text-gray-600">Table Preview</h2>
+              <BiSolidRightArrow className="w-6 h-6 text-gray-400" />
+            </div>
+
+            {/* SQL Query Input */}
+            <div className="flex gap-2">
+              <textarea
+                value={sqlQuery}
+                onChange={(e) => setSqlQuery(e.target.value)}
+                placeholder="Enter SQL query..."
+                className="flex-1 p-2 border rounded-lg resize-none h-10 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <button
+                onClick={executeQuery}
+                className="bg-blue-500 text-white rounded-lg h-10 w-10 flex items-center justify-center hover:bg-blue-600 transition-colors duration-150 shadow-sm"
+              >
+                <PiPaperPlaneRightFill className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Table Container */}
           <div className="flex-1 p-6 overflow-hidden">
-            {selectedTable && (
+            {(selectedTable || queryResults) && (
               <div className="bg-white rounded-lg shadow-lg h-full flex flex-col border border-gray-200">
                 {/* Table Header */}
                 <div className="flex items-center justify-between p-4 border-b bg-gray-50">
                   <h3 className="text-lg font-medium text-gray-700">
-                    {selectedDataset}.{selectedTable}
+                    {queryResults ? 'Query Results' : `${selectedDataset}.${selectedTable}`}
                   </h3>
                   {loading && (
                     <span className="text-sm text-gray-500">Loading preview...</span>
                   )}
                 </div>
-                
+
                 {error && (
                   <div className="text-red-500 text-sm p-4 border-b bg-red-50">
                     {error.message}
@@ -345,24 +399,25 @@ const DataPlatrInterface: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
-      </div>
+          <div className="flex bg-white border-t shadow-sm">
 
-      {/* Bottom Panel */}
-      <div className="h-16 bg-white border-t shadow-sm flex items-center px-6">
-        <div className="flex-1 flex gap-2">
-          <input
-            type="text"
-            placeholder="Enter your query..."
-            className="border rounded-lg px-4 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <button className="bg-blue-500 text-white rounded-lg h-10 w-10 flex items-center justify-center hover:bg-blue-600 transition-colors duration-150 shadow-sm">
-            <PiPaperPlaneRightFill className="w-5 h-5" />
-          </button>
+            <div className="flex-1 h-16 flex items-center px-6">
+              <div className="flex-1 flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter your query..."
+                  className="border rounded-lg px-4 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button className="bg-blue-500 text-white rounded-lg h-10 w-10 flex items-center justify-center hover:bg-blue-600 transition-colors duration-150 shadow-sm">
+                  <PiPaperPlaneRightFill className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default DataPlatrInterface;
