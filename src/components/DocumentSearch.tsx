@@ -1,13 +1,13 @@
-import React, { useEffect, useRef } from 'react';
-import { FaArrowLeft } from "react-icons/fa";
 
-interface SearchComponentProps {
+//DocumentSearch.tsx
+import React, { useEffect } from 'react';
+import { FaArrowLeft } from 'react-icons/fa';
+
+interface DocumentSearchProps {
   onBack: () => void;
 }
 
-const SearchComponent: React.FC<SearchComponentProps> = ({ onBack }) => {
-  const widgetRef = useRef<HTMLDivElement>(null);
-
+const DocumentSearch: React.FC<DocumentSearchProps> = ({ onBack }) => {
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://cloud.google.com/ai/gen-app-builder/client?hl=en_US';
@@ -28,20 +28,21 @@ const SearchComponent: React.FC<SearchComponentProps> = ({ onBack }) => {
       >
         <FaArrowLeft className="w-5 h-5 text-gray-600" />
       </button>
-      
-      <div ref={widgetRef}>
+
+      <div className="max-w-4xl mx-auto">
         <gen-search-widget
-          configid="e6a01d81-7e83-43f9-8fa9-1545b9275a6c"
+          configid="4e9e2b46-48e7-448b-89dc-f8f6d1c283cd"
           triggerid="searchWidgetTrigger"
         ></gen-search-widget>
+
         <input 
-          placeholder="Search here..." 
-          id="searchWidgetTrigger"
-          className="w-full max-w-xl px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Search here" 
+          id="searchWidgetTrigger" 
+          className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
     </div>
   );
 };
 
-export default SearchComponent;
+export default DocumentSearch;
