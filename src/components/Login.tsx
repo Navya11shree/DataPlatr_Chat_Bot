@@ -31,7 +31,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             alt="Data Platr Logo"
             className="w-12 h-12 mr-3"
           />
-          <h2 className="text-3xl font-bold text-gray-800">Data Platr</h2>
+          <h2 className="text-3xl font-bold text-gray-800">Chat Platr</h2>
         </div>
         
         <form onSubmit={handleLogin} className="space-y-6">
