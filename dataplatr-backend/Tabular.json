@@ -1,0 +1,8 @@
+{
+    "GCP_PROJECT_ID": "dataplatr-sandbox",
+    "GCP_PROJECT_NUMBER": "313726293085",
+    "LOCATION": "global",
+    "GENAI_DATASTORE_ID": "municipal-codes_1730884030039",
+    "GENAI_SERVING_CONFIG_ID": "e6a01d81-7e83-43f9-8fa9-1545b9275a6c"
+  }
+  
