@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/DataPlatr_Chat_Bot/static/css/main.3add4ed4.css",
+    "main.js": "/DataPlatr_Chat_Bot/static/js/main.fd7c9564.js",
+    "static/js/453.0cac954e.chunk.js": "/DataPlatr_Chat_Bot/static/js/453.0cac954e.chunk.js",
+    "index.html": "/DataPlatr_Chat_Bot/index.html",
+    "main.3add4ed4.css.map": "/DataPlatr_Chat_Bot/static/css/main.3add4ed4.css.map",
+    "main.fd7c9564.js.map": "/DataPlatr_Chat_Bot/static/js/main.fd7c9564.js.map",
+    "453.0cac954e.chunk.js.map": "/DataPlatr_Chat_Bot/static/js/453.0cac954e.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3add4ed4.css",
+    "static/js/main.fd7c9564.js"
+  ]
+}
