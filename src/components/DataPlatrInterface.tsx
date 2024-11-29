@@ -4,6 +4,7 @@ import { BiSolidRightArrow } from "react-icons/bi";
 import { PiPaperPlaneRightFill } from "react-icons/pi";
 import { FaDiagramProject, FaTableCells } from "react-icons/fa6";
 import { FaDatabase } from "react-icons/fa";
+import DataInsightsComponent from './DataInsightsComponent';
 
 interface DataPlatrInterfaceProps {
   onBack: () => void;
@@ -395,6 +396,11 @@ const DataPlatrInterface: React.FC<DataPlatrInterfaceProps> = ({ onBack }) => {
                 {/* Table Preview */}
                 <div className="flex-1 overflow-hidden p-4">
                   {renderTablePreview()}
+                  <div className="flex-1 ml-4">
+      {tablePreview && (
+        <DataInsightsComponent tableData={tablePreview} />
+      )}
+    </div>
                 </div>
               </div>
             )}

@@ -1,11 +1,12 @@
 
-// DemoSelection.tsx
+// // DemoSelection.tsx
 import React from 'react';
 import { PiChatCircleTextFill, PiMagnifyingGlassFill } from "react-icons/pi";
 import { BsFillGrid3X3GapFill } from "react-icons/bs";
+import { FaRobot } from "react-icons/fa";
 
 interface Demo {
-  id: 'search' | 'ai-conversation' | 'demo-3' | 'demo-4';
+  id: 'search' | 'ai-conversation' | 'demo-3' | 'demo-4' | 'data-gpt';
   title: string;
   icon: JSX.Element;
   description: string;
@@ -36,24 +37,20 @@ const DemoSelection: React.FC<DemoSelectionProps> = ({ onSelectDemo }) => {
       description: ''
     },
     {
-      id: 'demo-4',
-      title: 'Demo 4',
-      icon: <BsFillGrid3X3GapFill className="w-12 h-12 text-orange-500" />,
-      description: ''
+      id: 'data-gpt', // Replace 'demo-4' with 'data-gpt'
+      title: 'DataGPT',
+      icon: <FaRobot className="w-12 h-12 text-purple-500" />,
+      description: 'Natural language data querying'
     }
   ];
 
   const handleDemoSelect = (demoId: Demo['id']) => {
-    if (demoId === 'search') {
-      onSelectDemo('search');
-    } else {
-      onSelectDemo(demoId);
-    }
+    onSelectDemo(demoId);
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Header */}
+      {/* Header remains the same */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center space-x-3">
