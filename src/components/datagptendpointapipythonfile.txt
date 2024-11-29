@@ -1,0 +1,266 @@
+//Data_GPT_Grmini_API_ENDPOINT.py
+# from flask import Flask, request, jsonify
+# import os
+# from google.cloud import bigquery
+# import google.generativeai as genai
+# import pandas as pd
+# from flask import Flask
+# from flask_cors import CORS
+
+# app = Flask(__name__)
+# CORS(app)
+
+
+
+# BIGQUERY_CREDENTIALS = r"C:\Users\KISHAN\Downloads\dataplatr-sandbox-bqserviceaccount_key.json"
+# GEMINI_CREDENTIALS = r"C:\Users\KISHAN\Downloads\dataplatr-sandbox-51b6c36cdb27.json"
+
+# # Configure Gemini API
+# def configure_gemini():
+#     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GEMINI_CREDENTIALS
+#     genai.configure()
+
+# # Initialize BigQuery client
+# def initialize_bigquery():
+#     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = BIGQUERY_CREDENTIALS
+#     return bigquery.Client()
+
+# # Gemini generation configuration
+# generation_config = {
+#     "temperature": 0.4,
+#     "top_p": 1,
+#     "top_k": 32,
+#     "max_output_tokens": 4096,
+# }
+
+# safety_settings = [
+#     {
+#         "category": "HARM_CATEGORY_HARASSMENT",
+#         "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+#     },
+#     {
+#         "category": "HARM_CATEGORY_HATE_SPEECH",
+#         "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+#     },
+#     {
+#         "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+#         "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+#     },
+#     {
+#         "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+#         "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+#     }
+# ]
+
+# @app.route('/gemini', methods=['POST'])
+# def gemini_endpoint():
+#     try:
+#         data = request.json
+#         prompt = data.get('prompt')
+#         if not prompt:
+#             return jsonify({"error": "Prompt is required"}), 400
+
+#         # Configure Gemini API
+#         configure_gemini()
+#         model = genai.GenerativeModel(
+#             model_name="gemini-pro",
+#             generation_config=generation_config,
+#             safety_settings=safety_settings
+#         )
+
+#         # Generate SQL
+#         response = model.generate_content(f"Write an accurate SQL query based on this requirement: {prompt}. Use the table `dataplatr-sandbox.EdwBI.Accounting_GLJournalDetails`."
+# )
+#         sql_query = response.text.strip().replace("```sql", "").replace("```", "").strip()
+
+#         return jsonify({"sql": sql_query})
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+# @app.route('/api/bigquery', methods=['POST'])
+# def bigquery_endpoint():
+#     try:
+#         data = request.json
+#         sql_query = data.get('query')
+#         if not sql_query:
+#             return jsonify({"error": "SQL query is required"}), 400
+
+#         # Initialize BigQuery client
+#         bq_client = initialize_bigquery()
+
+#         # Execute SQL
+#         query_job = bq_client.query(sql_query)
+#         results = query_job.result()
+#         rows = [dict(row) for row in results]
+
+#         return jsonify({"results": rows})
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=8080, debug=True)
+
+
+
+
+
+
+
+
+
+
+#autoviz code 
+# from flask import Flask, request, jsonify
+# import os
+# from google.cloud import bigquery
+# import google.generativeai as genai
+# import pandas as pd
+# from flask import Flask
+# from flask_cors import CORS
+# import plotly.express as px
+
+# app = Flask(__name__)
+# CORS(app)
+
+# BIGQUERY_CREDENTIALS = r"C:\Users\KISHAN\Downloads\dataplatr-sandbox-bqserviceaccount_key.json"
+# GEMINI_CREDENTIALS = r"C:\Users\KISHAN\Downloads\dataplatr-sandbox-51b6c36cdb27.json"
+
+# # Configure Gemini API
+# def configure_gemini():
+#     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GEMINI_CREDENTIALS
+#     genai.configure()
+
+# # Initialize BigQuery client
+# def initialize_bigquery():
+#     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = BIGQUERY_CREDENTIALS
+#     return bigquery.Client()
+
+# # Gemini generation configuration
+# generation_config = {
+#     "temperature": 0.4,
+#     "top_p": 1,
+#     "top_k": 32,
+#     "max_output_tokens": 4096,
+# }
+
+# safety_settings = [
+#     {
+#         "category": "HARM_CATEGORY_HARASSMENT",
+#         "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+#     },
+#     {
+#         "category": "HARM_CATEGORY_HATE_SPEECH",
+#         "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+#     },
+#     {
+#         "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+#         "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+#     },
+#     {
+#         "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+#         "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+#     }
+# ]
+
+# @app.route('/gemini', methods=['POST'])
+# def gemini_endpoint():
+#     try:
+#         data = request.json
+#         prompt = data.get('prompt')
+#         if not prompt:
+#             return jsonify({"error": "Prompt is required"}), 400
+
+#         # Configure Gemini API
+#         configure_gemini()
+#         model = genai.GenerativeModel(
+#             model_name="gemini-pro",
+#             generation_config=generation_config,
+#             safety_settings=safety_settings
+#         )
+
+#         # Generate SQL
+#         response = model.generate_content(f"Write an accurate SQL query based on this requirement: {prompt}. Use the table `dataplatr-sandbox.EdwBI.Accounting_GLJournalDetails`.")
+#         sql_query = response.text.strip().replace("```sql", "").replace("```", "").strip()
+
+#         # Recommend Visualization
+#         viz_prompt = f"""
+#         You are an AI assistant that recommends appropriate data visualizations.
+#         Question: {prompt}
+#         Provide your response in the format:
+#         Recommended Visualization: [Chart type or "none"]
+#         Reason: [Brief explanation for your recommendation]
+#         """
+#         viz_response = model.generate_content(viz_prompt)
+        
+#         # Extract visualization recommendation
+#         recommended_chart = None
+#         if "Recommended Visualization:" in viz_response.text:
+#             recommended_chart = viz_response.text.split("Recommended Visualization:")[1].split("\n")[0].strip().lower()
+        
+#         # Normalize the chart type
+#         valid_chart_types = ["bar", "line", "scatter", "pie"]
+#         if recommended_chart and " " in recommended_chart:
+#             recommended_chart = recommended_chart.split()[0]
+        
+#         if recommended_chart not in valid_chart_types:
+#             recommended_chart = None
+
+#         return jsonify({
+#             "sql": sql_query, 
+#             "recommended_chart": recommended_chart,
+#             "visualization_reason": viz_response.text
+#         })
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+# @app.route('/api/bigquery', methods=['POST'])
+# def bigquery_endpoint():
+#     try:
+#         data = request.json
+#         sql_query = data.get('query')
+#         recommended_chart = data.get('recommended_chart')
+#         if not sql_query:
+#             return jsonify({"error": "SQL query is required"}), 400
+
+#         # Initialize BigQuery client
+#         bq_client = initialize_bigquery()
+
+#         # Execute SQL
+#         query_job = bq_client.query(sql_query)
+#         df = query_job.to_dataframe()
+
+#         # Prepare visualization if chart is recommended
+#         visualization = None
+#         if recommended_chart and not df.empty:
+#             try:
+#                 if recommended_chart == "bar":
+#                     fig = px.bar(df, x=df.columns[0], y=df.columns[1], title="Bar Chart")
+#                 elif recommended_chart == "line":
+#                     fig = px.line(df, x=df.columns[0], y=df.columns[1], title="Line Chart")
+#                 elif recommended_chart == "scatter":
+#                     fig = px.scatter(df, x=df.columns[0], y=df.columns[1], title="Scatter Plot")
+#                 elif recommended_chart == "pie":
+#                     fig = px.pie(df, names=df.columns[0], values=df.columns[1], title="Pie Chart")
+#                 else:
+#                     fig = None
+                
+#                 if fig:
+#                     visualization = fig.to_json()
+#             except Exception as e:
+#                 visualization = None
+
+#         return jsonify({
+#             "results": df.to_dict(orient='records'),
+#             "recommended_chart": recommended_chart,
+#             "visualization": visualization
+#         })
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
+
+# if __name__ == '__main__':
+#     app.run(host='0.0.0.0', port=8080, debug=True)
+
