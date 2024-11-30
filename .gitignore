@@ -29,3 +29,6 @@ service-account-key.json
 
 
 node_modules
+
+datagpt-bigquery.json
+datagpt-gemini.json
