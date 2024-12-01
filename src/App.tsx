@@ -39,7 +39,7 @@ function App() {
     case 'ai-conversation':
       return <DataPlatrInterface onBack={() => setSelectedDemo(null)} />;
     case 'data-gpt':
-      return <DataGPT onBack={() => setSelectedDemo(null)} />;
+      return <DataGPT onBack={() => setSelectedDemo(null)}/>;
     default:
       return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center">

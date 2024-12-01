@@ -1,4 +1,4 @@
-
+//Frontend//DataGPT.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import Highcharts from 'highcharts';
@@ -64,24 +64,22 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
 
   const renderChart = () => {
     if (!queryResult || !queryResult.chart_type) return null;
-
+  
     // Determine chart type
-    const chartType = queryResult.chart_type.toLowerCase();
-
+    const chartType = queryResult.chart_type.toLowerCase() === 'bar' ? 'column' : queryResult.chart_type.toLowerCase();
+  
     // Prepare data for chart
     const chartData = queryResult.data.map(row => {
-      // Assuming the first column is the category (x-axis)
-      // and the second column is the value (y-axis)
       const keys = Object.keys(row);
       return {
         name: row[keys[0]],
         y: Number(row[keys[1]])
       };
     });
-
+  
     const chartOptions = {
       chart: {
-        type: chartType // 'bar', 'column', 'pie', etc.
+        type: chartType // Changed to 'column' for vertical bars
       },
       title: {
         text: 'Query Visualization'
@@ -107,7 +105,7 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
         }
       }
     };
-
+  
     return (
       <div className="mt-4">
         <HighchartsReact
@@ -201,3 +199,4 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
 };
 
 export default DataGPT;
+
