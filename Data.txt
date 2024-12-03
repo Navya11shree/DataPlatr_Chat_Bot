@@ -1,1 +1,1 @@
-show me the DistributionDetailAmountDebit by journalcategory
+show me the DistributionAccountedCredit by journalcategory
