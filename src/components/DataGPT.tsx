@@ -605,7 +605,6 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
     fetchTables();
   }, [selectedDataset]);
 
-  // Existing handleSubmit method from previous implementation
   // In the handleSubmit method, update to pass connection details
   const handleSubmit = async () => {
     // Validate that a project, dataset, and table are selected
@@ -625,22 +624,24 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
       // Pass connection details to Gemini endpoint
       const geminiResponse = await axios.post('http://127.0.0.1:8080/gemini', {
         query,
-        project_id: project_id, // Use selected connection as project
+        table_name: `${project_id}.${dataset_name}.${selectedTable}`, // Combine project, dataset, and table into full table reference
+        project_id,
         dataset_id: dataset_name,
         table_id: selectedTable
       });
 
       const generatedSqlQuery = geminiResponse.data.sql_query;
       const queryDescription = geminiResponse.data.query_description;
-      const tableReference = geminiResponse.data.table_reference;
 
       // Pass connection details to BigQuery endpoint
       const bigqueryResponse = await axios.post('http://127.0.0.1:8080/api/bigquery', {
         sql_query: generatedSqlQuery,
         original_query: query,
         query_description: queryDescription,
-        table_reference: tableReference
+        table_reference: `${project_id}.${dataset_name}.${selectedTable}`
       });
+
+
 
       setQueryResult({
         ...bigqueryResponse.data,
@@ -869,123 +870,123 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
       </div>
 
 
-    {/* Main Content Area */}
-<div className="flex-1 flex flex-col">
-  {/* Header - Full Width */}
-  <div className="bg-gradient-to-r from-blue-700 to-purple-700 text-white p-4 md:p-6 flex items-center justify-between shadow-md">
-    <div className="flex items-center space-x-4">
-      {onBack && (
-        <button
-          onClick={onBack}
-          className="hover:bg-white/20 p-2 rounded-full transition-colors"
-        >
-          <ArrowLeft className="w-6 h-6" />
-        </button>
-      )}
-      <h1 className="text-xl md:text-2xl font-bold tracking-tight">InsightPlatrAI</h1>
-    </div>
-  </div>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Header - Full Width */}
+        <div className="bg-gradient-to-r from-blue-700 to-purple-700 text-white p-4 md:p-6 flex items-center justify-between shadow-md">
+          <div className="flex items-center space-x-4">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="hover:bg-white/20 p-2 rounded-full transition-colors"
+              >
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+            )}
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight">InsightPlatrAI</h1>
+          </div>
+        </div>
 
-  {/* Query Input Section */}
-  <div className="p-4 md:p-6">
-    <div className="relative">
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Ask a data question in plain English"
-        className="w-full pl-12 pr-32 py-3 border-2 border-blue-500 rounded-xl 
+        {/* Query Input Section */}
+        <div className="p-4 md:p-6">
+          <div className="relative">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Ask a data question in plain English"
+              className="w-full pl-12 pr-32 py-3 border-2 border-blue-500 rounded-xl 
                    focus:outline-none focus:ring-2 focus:ring-blue-700 
                    focus:border-transparent text-gray-900 
                    transition-all duration-300 shadow-md
                    placeholder-gray-500"
-      />
-      <Search
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 
+            />
+            <Search
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 
                    text-gray-500 w-5 h-5"
-      />
-      <button
-        onClick={handleSubmit}
-        disabled={isLoading}
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 
+            />
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 
                    bg-gradient-to-r from-blue-600 to-purple-700 
                    text-white px-4 py-2 rounded-lg 
                    hover:opacity-90 transition-all 
                    disabled:opacity-50 flex items-center space-x-2
                    shadow-md"
-      >
-        {isLoading ? (
-          <div className="flex items-center">
-            <Loader2 className="mr-2 animate-spin" />
-            Processing...
+            >
+              {isLoading ? (
+                <div className="flex items-center">
+                  <Loader2 className="mr-2 animate-spin" />
+                  Processing...
+                </div>
+              ) : (
+                'Submit Query'
+              )}
+            </button>
           </div>
-        ) : (
-          'Submit Query'
+        </div>
+
+        {/* Results Section - Scrollable */}
+        {queryResult && (
+          <div className="space-y-6 overflow-y-auto">
+            {/* Error Handling */}
+            {error && (
+              <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg mx-8">
+                <p className="font-semibold">{error}</p>
+              </div>
+            )}
+            {/* Table Preview - Responsive with width constraint */}
+            <div className="w-auto ml-8 rounded-lg border">
+              <table className="w-auto border-collapse border border-blue-400  shadow-md rounded-lg ">
+                <thead>
+                  <tr>
+                    {queryResult.columns.map((column) => (
+                      <th
+                        key={column}
+                        className="border border-blue-400 px-4 py-2 bg-gray-100 font-bold text-left text-gray-700"
+                      >
+                        {column}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {queryResult.data.map((row, idx) => (
+                    <tr key={idx} className="hover:bg-blue-300 transition-colors">
+                      {queryResult.columns.map((column) => (
+                        <td
+                          key={column}
+                          className="border border-blue-400 rounded-lg  px-4 py-2 text-sm text-gray-800"
+                        >
+                          {row[column] as string | number | boolean | null}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {/* Descriptive Sections - Responsive Grid */}
+            <div className="grid md:grid-cols-2 gap-6 mb-4 mx-8">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
+                <h3 className="text-xl font-bold text-blue-900 mb-2">Interpretation</h3>
+                <p className="text-blue-800">{queryResult.query_description || 'No description available'}</p>
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
+                <h3 className="text-xl font-bold text-blue-900 mb-2">LLM Recommendation</h3>
+                <p className="text-blue-800">{queryResult.llm_recommendation || 'No recommendation available'}</p>
+              </div>
+            </div>
+
+            {/* Chart Section - Full Width */}
+            {queryResult && queryResult.data.length > 0 && renderChart()}
+          </div>
         )}
-      </button>
-    </div>
-  </div>
-
-  {/* Results Section - Scrollable */}
-  {queryResult && (
-    <div className="space-y-6 overflow-y-auto">
-      {/* Error Handling */}
-      {error && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg mx-8">
-          <p className="font-semibold">{error}</p>
-        </div>
-      )}
-      {/* Table Preview - Responsive with width constraint */}
-      <div className="w-auto ml-8">
-        <table className="w-auto border-collapse border border-gray-300 rounded-xl shadow-md">
-          <thead>
-            <tr>
-              {queryResult.columns.map((column) => (
-                <th
-                  key={column}
-                  className="border border-gray-300 px-4 py-2 bg-gray-100 font-bold text-left text-gray-700"
-                >
-                  {column}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {queryResult.data.map((row, idx) => (
-              <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                {queryResult.columns.map((column) => (
-                  <td
-                    key={column}
-                    className="border border-gray-300 px-4 py-2 text-sm text-gray-800"
-                  >
-                    {row[column] as string | number | boolean | null}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
-
-      {/* Descriptive Sections - Responsive Grid */}
-      <div className="grid md:grid-cols-2 gap-6 mb-4 mx-8">
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 shadow-sm">
-          <h3 className="text-xl font-bold text-blue-900 mb-2">Interpretation</h3>
-          <p className="text-blue-800">{queryResult.query_description || 'No description available'}</p>
-        </div>
-
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 shadow-sm">
-          <h3 className="text-xl font-bold text-blue-900 mb-2">LLM Recommendation</h3>
-          <p className="text-blue-800">{queryResult.llm_recommendation || 'No recommendation available'}</p>
-        </div>
-      </div>
-
-      {/* Chart Section - Full Width */}
-      {queryResult && queryResult.data.length > 0 && renderChart()}
     </div>
-  )}
-</div>
-    </div>
+
   );
 };
 

@@ -618,54 +618,55 @@ def get_bigquery_tables():
 @app.route('/gemini', methods=['POST'])
 def gemini_endpoint():
     try:
+        # Log incoming request details
         logger.info(f"Gemini Endpoint - Received Request: {request.json}")
 
         data = request.json
         user_query = data.get('query', '')
-        project_id = data.get('project_id')
-        dataset_id = data.get('dataset_id')
-        table_id = data.get('table_id')
+        table_name = data.get('table_name', '')
 
+        # Validate input
         if not user_query:
             return jsonify({'error': 'No query provided'}), 400
+        if not table_name:
+            return jsonify({'error': 'No table name provided'}), 400
 
+        # Configure Gemini
         model = configure_gemini()
 
-        # Dynamically construct the table reference
-        full_table_ref = f"{project_id}.{dataset_id}.{table_id}"
-
-        prompt = f"""Convert this natural language query to SQL for the table `{full_table_ref}`: {user_query}
-
-Constraints:
-1. Use only columns from the specified table
-2. Provide a valid SQL query that can be directly executed in BigQuery
-3. If the query cannot be fully answered by the given table, explain why
-
-Provide ONLY the SQL query without any additional explanation."""
-        
+        # Generate SQL query
+        prompt = f""" Convert this natural language query to SQL for the table `{table_name}`: {user_query}. Consider closest fields matching with the keywords used in user query."""
         response = model.generate_content([prompt])
         query = response.text.strip().replace("```sql", "").replace("```", "").strip()
 
+        # Generate Results Description
         description_prompt = f"""
         You are an AI assistant that summarizes query results in plain English.
-        The query is for the table {full_table_ref}
+        
+        The result contains the following columns.
+        Table: {table_name}
         Question: {user_query}
         SQL Query: {query}
-        Provide a detailed description of what insights this query might reveal.
+        SQL Result: first display heading of table name, then below Describe what the data represents, key metrics and any important aggregations or patterns.
+        Provide your response in the format:
+        [Table:table choosen at first then                                                                                                                                                                                                      
+        \n\n Description: below Summary of what the data contains with SQL Result]
         """
         description_response = model.generate_content([description_prompt])
         result_description = description_response.text.strip()
 
+        # Log generated query
         logger.info(f"Generated SQL Query: {query}")
 
         return jsonify({
             'sql_query': query,
             'original_query': user_query,
             'query_description': result_description,
-            'table_reference': full_table_ref
+            'table_name': table_name  # Add table name to response
         })
     
     except Exception as e:
+        # Log full error details
         logger.error(f"Gemini Endpoint Error: {e}")
         logger.error(traceback.format_exc())
         return jsonify({
@@ -673,7 +674,8 @@ Provide ONLY the SQL query without any additional explanation."""
             'details': str(e),
             'traceback': traceback.format_exc()
         }), 500
-
+    
+    
 @app.route('/api/bigquery', methods=['POST'])
 def bigquery_endpoint():
     try:
@@ -714,6 +716,7 @@ def bigquery_endpoint():
         For the column {df.columns[1]}, here are some sample values: {', '.join(map(str, df[df.columns[1]].unique()[:4]))}.
         Question: {user_query}
         SQL Query: {sql_query}
+        
         SQL Result: Describe what the data represents, key metrics, and any important aggregations or patterns.
         Provide your response in the format:
         Description: [Summary of what the data contains]
@@ -723,6 +726,7 @@ def bigquery_endpoint():
 
         viz_prompt = f"""
         You are an AI assistant that recommends appropriate data visualizations.
+        
         Question: {user_query}
         SQL Query: {sql_query}
         Result Description: {data_preview_description}
