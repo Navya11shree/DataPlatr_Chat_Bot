@@ -635,7 +635,8 @@ def gemini_endpoint():
         model = configure_gemini()
 
         # Generate SQL query
-        prompt = f""" Convert this natural language query to SQL for the table `{table_name}`: {user_query}. Consider closest fields matching with the keywords used in user query."""
+        prompt = f""" Convert this natural language query to SQL for the table `{table_name}`: {user_query}.
+        \n\nprovide ONLY the SQL QUERY without any additinal explanation."""
         response = model.generate_content([prompt])
         query = response.text.strip().replace("```sql", "").replace("```", "").strip()
 
@@ -644,13 +645,11 @@ def gemini_endpoint():
         You are an AI assistant that summarizes query results in plain English.
         
         The result contains the following columns.
-        Table: {table_name}
         Question: {user_query}
         SQL Query: {query}
-        SQL Result: first display heading of table name, then below Describe what the data represents, key metrics and any important aggregations or patterns.
-        Provide your response in the format:
-        [Table:table choosen at first then                                                                                                                                                                                                      
-        \n\n Description: below Summary of what the data contains with SQL Result]
+        SQL Result: Describe what the data represents, key metrics and any important aggregations or patterns.
+        Provide your response in the format:                                                                                                                                                                                                   
+        Description: [ table_name and Summary of what the data contains ]
         """
         description_response = model.generate_content([description_prompt])
         result_description = description_response.text.strip()
