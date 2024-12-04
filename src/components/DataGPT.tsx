@@ -1,19 +1,23 @@
-// //FRONTEND/DATAGPT.TSX without connection dropdowns
-// import React, { useState, useRef } from 'react';
+
+// //FRONTEND/DATAGPT.TSX with sidebar connection dropdowns with not auto project, user select dataste, table
+// import React, { useState, useRef, useEffect } from 'react';
 // import axios from 'axios';
 // import Highcharts from 'highcharts';
 // import HighchartsReact from 'highcharts-react-official';
-// import { 
-//   Expand, 
-//   Shrink, 
-//   Search, 
-//   ArrowLeft, 
-//   BarChart, 
-//   PieChart, 
-//   LineChart, 
-//   AreaChart, 
-//   ColumnsIcon, 
-//   Loader2 
+// import {
+//   Expand,
+//   Shrink,
+//   Search,
+//   ArrowLeft,
+//   BarChart,
+//   PieChart,
+//   LineChart,
+//   AreaChart,
+//   ColumnsIcon,
+//   Loader2,
+//   Table,
+//   Layers,
+//   Database
 // } from 'lucide-react';
 
 // // Color palettes
@@ -63,8 +67,58 @@
 //   const [chartTypeToDisplay, setChartTypeToDisplay] = useState<string>('column');
 //   const [selectedColorPalette, setSelectedColorPalette] = useState<ColorPaletteKey>('default');
 
-//   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
+//   // New state for BigQuery connection details
+//   const [connections, setConnections] = useState<string[]>([]);
+//   const [datasets, setDatasets] = useState<string[]>([]);
+//   const [tables, setTables] = useState<string[]>([]);
+//   const [selectedConnection, setSelectedConnection] = useState<string>('');
+//   const [selectedDataset, setSelectedDataset] = useState<string>('');
+//   const [selectedTable, setSelectedTable] = useState<string>('');
 
+//   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
+//   // Fetch connection details on component mount
+//   useEffect(() => {
+//     const fetchConnectionDetails = async () => {
+//       try {
+//         // Fetch connections
+//         const connectionsResponse = await axios.get('http://127.0.0.1:8080/api/bigquery/connections');
+//         setConnections(connectionsResponse.data);
+
+//         // Auto-select first connection if available
+//         if (connectionsResponse.data.length > 0) {
+//           setSelectedConnection(connectionsResponse.data[0]);
+
+//           // Fetch datasets for the selected connection
+//           const datasetsResponse = await axios.get('http://127.0.0.1:8080/api/bigquery/datasets');
+//           setDatasets(datasetsResponse.data);
+//         }
+//       } catch (err) {
+//         console.error('Error fetching connection details:', err);
+//         setError('Failed to load connection details');
+//       }
+//     };
+
+//     fetchConnectionDetails();
+//   }, []);
+
+//   // Fetch tables when dataset changes
+//   useEffect(() => {
+//     const fetchTables = async () => {
+//       if (selectedDataset) {
+//         try {
+//           const tablesResponse = await axios.get(`http://127.0.0.1:8080/api/bigquery/tables?dataset_id=${selectedDataset}`);
+//           setTables(tablesResponse.data);
+//         } catch (err) {
+//           console.error('Error fetching tables:', err);
+//           setError('Failed to load tables');
+//         }
+//       }
+//     };
+
+//     fetchTables();
+//   }, [selectedDataset]);
+
+//   // Existing handleSubmit method from previous implementation
 //   const handleSubmit = async () => {
 //     setIsLoading(true);
 //     setError(null);
@@ -128,10 +182,10 @@
 //       yAxis:
 //         chartTypeToDisplay !== 'pie'
 //           ? {
-//               title: {
-//                 text: queryResult.columns[1],
-//               },
-//             }
+//             title: {
+//               text: queryResult.columns[1],
+//             },
+//           }
 //           : undefined,
 //       series: [
 //         {
@@ -170,11 +224,10 @@
 //                 <div key={type} className="relative group">
 //                   <button
 //                     onClick={() => setChartTypeToDisplay(type)}
-//                     className={`p-2 rounded-md transition-all ${
-//                       chartTypeToDisplay === type
-//                         ? 'bg-blue-500 text-white'
-//                         : 'hover:bg-gray-200 text-gray-600'
-//                     }`}
+//                     className={`p-2 rounded-md transition-all ${chartTypeToDisplay === type
+//                       ? 'bg-blue-500 text-white'
+//                       : 'hover:bg-gray-200 text-gray-600'
+//                       }`}
 //                   >
 //                     <Icon className="w-5 h-5" />
 //                   </button>
@@ -232,135 +285,207 @@
 //       </div>
 //     );
 //   };
-
 //   return (
-//     <div className="w-screen h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-0 m-0 overflow-auto">
-//       <div className="w-full h-full container mx-auto px-4 py-6 md:px-6 lg:px-8">
-//         <div className="w-full h-full bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col">
-//           {/* Header - Full Width */}
-//           <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 md:p-6 flex items-center justify-between">
-//             <div className="flex items-center space-x-4">
-//               {onBack && (
-//                 <button
-//                   onClick={onBack}
-//                   className="hover:bg-white/20 p-2 rounded-full transition-colors"
-//                 >
-//                   <ArrowLeft className="w-6 h-6" />
-//                 </button>
-//               )}
-//               <h1 className="text-xl md:text-2xl font-bold">InsightPlatrAI</h1>
+//     <div className="flex h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+//       {/* Left Sidebar - Connection Details */}
+//       <div className="w-80 max-w-[30%] bg-white border-r border-gray-200 overflow-y-auto p-6 shadow-lg">
+//         <h2 className="text-2xl font-bold mb-6 text-blue-800 flex items-center">
+//           <Database className="mr-3 text-blue-600" /> Connection
+//         </h2>
+
+//         {/* Project/Connection Dropdown */}
+//         <div className="mb-6">
+//           <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+//             <Layers className="mr-2 text-blue-500" /> Project
+//           </label>
+//           <div className="relative">
+//             <select
+//               value={selectedConnection}
+//               onChange={(e) => setSelectedConnection(e.target.value)}
+//               className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-lg 
+//             focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+//             appearance-none bg-white shadow-sm"
+//             >
+//               {connections.map((connection) => (
+//                 <option key={connection} value={connection}>
+//                   {connection}
+//                 </option>
+//               ))}
+//             </select>
+//             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+//               <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+//                 <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+//               </svg>
 //             </div>
 //           </div>
+//         </div>
 
-//           {/* Main Content - Flexible Layout */}
-//           <div className="flex-grow overflow-auto p-4 md:p-6 grid grid-cols-1 gap-6 border-blue-500">
-//             {/* Query Input Section - Full Width */}
-//             <div className="w-full border-blue-500">
-//               <div className="relative">
-//                 <input
-//                   type="text"
-//                   value={query}
-//                   onChange={(e) => setQuery(e.target.value)}
-//                   placeholder="Ask a data question in plain English"
-//                   className="w-full pl-12 pr-32 py-3 border-2 border-blue-400 rounded-xl 
-//                              focus:outline-none focus:ring-2 focus:ring-blue-600 
-//                              focus:border-transparent text-gray-700 
-//                              transition-all duration-300 shadow-sm"
-//                 />
-//                 <Search
-//                   className="absolute left-4 top-1/2 transform -translate-y-1/2 
-//                              text-gray-400 w-5 h-5"
-//                 />
-//                 <button
-//                   onClick={handleSubmit}
-//                   disabled={isLoading}
-//                   className="absolute right-2 top-1/2 transform -translate-y-1/2 
-//                              bg-gradient-to-r from-blue-500 to-purple-600 
-//                              text-white px-4 py-2 rounded-lg 
-//                              hover:opacity-90 transition-all 
-//                              disabled:opacity-50 flex items-center space-x-2"
-//                 >
-//                   {isLoading ? (
-//                     <div className="flex items-center">
-//                       <Loader2 className="mr-2 animate-spin" />
-//                       Processing...
-//                     </div>
-//                   ) : (
-//                     'Submit Query'
-//                   )}
-//                 </button>
-//               </div>
-//             </div>
-
-//             {/* Results Section - Scrollable */}
-//             {queryResult && (
-//               <div className="space-y-6 overflow-y-auto">
-//                 {/* Error Handling */}
-//                 {error && (
-//                   <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg">
-//                     <p className="font-semibold">{error}</p>
-//                   </div>
-//                 )}
-
-//                {/* Table Preview - Responsive */}
-// <div className="overflow-x-auto shadow-lg rounded-lg   border-blue-400  border-2">
-//   <table className="w-full border-collapse border border-gray-500">
-//     <thead>
-//       <tr>
-//         {queryResult.columns.map((column) => (
-//           <th
-//             key={column}
-//             className="border border-gray-300 px-4 py-2 bg-gray-200 font-bold text-left"
+//         {/* Dataset Dropdown */}
+//         <div className="mb-6">
+//           <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+//             <Layers className="mr-2 text-blue-500" /> Dataset
+//           </label>
+//           <select
+//             value={selectedDataset}
+//             onChange={(e) => setSelectedDataset(e.target.value)}
+//             className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+//           focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 //           >
-//             {column}
-//           </th>
-//         ))}
-//       </tr>
-//     </thead>
-//     <tbody>
-//       {queryResult.data.map((row, idx) => (
-//         <tr key={idx} className="hover:bg-gray-50 transition-colors">
-//           {queryResult.columns.map((column) => (
-//             <td
-//               key={column}
-//               className="border border-gray-300 px-4 py-2 text-sm text-gray-700"
+//             <option value="">Select a Dataset</option>
+//             {datasets.map((dataset) => (
+//               <option key={dataset} value={dataset}>
+//                 {dataset}
+//               </option>
+//             ))}
+//           </select>
+//         </div>
+
+//         {/* Table Dropdown */}
+//         <div className="mb-6">
+//           <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+//             <Table className="mr-2 text-blue-500" /> Table
+//           </label>
+//           <select
+//             value={selectedTable}
+//             onChange={(e) => setSelectedTable(e.target.value)}
+//             className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+//           focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+//           >
+//             <option value="">Select a Table</option>
+//             {tables.map((table) => (
+//               <option key={table} value={table}>
+//                 {table}
+//               </option>
+//             ))}
+//           </select>
+//         </div>
+//       </div>
+
+
+//       {/* Main Content Area */}
+//       <div className="flex-1 flex flex-col">
+//         {/* Header - Full Width */}
+//         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 md:p-6 flex items-center justify-between">
+//           <div className="flex items-center space-x-4">
+//             {onBack && (
+//               <button
+//                 onClick={onBack}
+//                 className="hover:bg-white/20 p-2 rounded-full transition-colors"
+//               >
+//                 <ArrowLeft className="w-6 h-6" />
+//               </button>
+//             )}
+//             <h1 className="text-xl md:text-2xl font-bold">InsightPlatrAI</h1>
+//           </div>
+//         </div>
+
+//         {/* Query Input Section */}
+//         <div className="p-4 md:p-6 bg-gray-50">
+//           <div className="relative">
+//             <input
+//               type="text"
+//               value={query}
+//               onChange={(e) => setQuery(e.target.value)}
+//               placeholder="Ask a data question in plain English"
+//               className="w-full pl-12 pr-32 py-3 border-2 border-blue-400 rounded-xl 
+//                          focus:outline-none focus:ring-2 focus:ring-blue-600 
+//                          focus:border-transparent text-gray-700 
+//                          transition-all duration-300 shadow-sm"
+//             />
+//             <Search
+//               className="absolute left-4 top-1/2 transform -translate-y-1/2 
+//                          text-gray-400 w-5 h-5"
+//             />
+//             <button
+//               onClick={handleSubmit}
+//               disabled={isLoading}
+//               className="absolute right-2 top-1/2 transform -translate-y-1/2 
+//                          bg-gradient-to-r from-blue-500 to-purple-600 
+//                          text-white px-4 py-2 rounded-lg 
+//                          hover:opacity-90 transition-all 
+//                          disabled:opacity-50 flex items-center space-x-2"
 //             >
-//               {row[column] as string | number | boolean | null}
-//             </td>
-//           ))}
-//         </tr>
-//       ))}
-//     </tbody>
-//   </table>
-// </div>
-
-//                 {/* Descriptive Sections - Responsive Grid */}
-//                 <div className="grid md:grid-cols-2 gap-6">
-//                   <div className="bg-blue-50 p-4 rounded-lg">
-//                     <h3 className="text-xl font-bold text-blue-800 mb-2">Interpretation</h3>
-//                     <p className="text-blue-600">{queryResult.query_description || 'No description available'}</p>
-//                   </div>
-
-//                   <div className="bg-blue-50 p-4 rounded-lg">
-//                     <h3 className="text-xl font-bold text-blue-800 mb-2">LLM Recommendation</h3>
-//                     <p className="text-blue-600">{queryResult.llm_recommendation || 'No recommendation available'}</p>
-//                   </div>
+//               {isLoading ? (
+//                 <div className="flex items-center">
+//                   <Loader2 className="mr-2 animate-spin" />
+//                   Processing...
 //                 </div>
+//               ) : (
+//                 'Submit Query'
+//               )}
+//             </button>
+//           </div>
+//         </div>
 
-//                 {/* Chart Section - Full Width */}
-//                 {queryResult && queryResult.data.length > 0 && renderChart()}
+//         {/* Results Section - Scrollable */}
+//         {queryResult && (
+//           <div className="space-y-6 overflow-y-auto">
+//             {/* Error Handling */}
+//             {error && (
+//               <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg">
+//                 <p className="font-semibold">{error}</p>
 //               </div>
 //             )}
+
+//             {/* Table Preview - Responsive */}
+//             <div className="overflow-x-auto shadow-md rounded-lg   border-blue-400  border-2">
+//               <table className="w-full border-collapse border border-gray-500">
+//                 <thead>
+//                   <tr>
+//                     {queryResult.columns.map((column) => (
+//                       <th
+//                         key={column}
+//                         className="border border-gray-300 px-4 py-2 bg-gray-200 font-bold text-left"
+//                       >
+//                         {column}
+//                       </th>
+//                     ))}
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {queryResult.data.map((row, idx) => (
+//                     <tr key={idx} className="hover:bg-gray-50 transition-colors">
+//                       {queryResult.columns.map((column) => (
+//                         <td
+//                           key={column}
+//                           className="border border-gray-300 px-4 py-2 text-sm text-gray-700"
+//                         >
+//                           {row[column] as string | number | boolean | null}
+//                         </td>
+//                       ))}
+//                     </tr>
+//                   ))}
+//                 </tbody>
+//               </table>
+//             </div>
+
+//             {/* Descriptive Sections - Responsive Grid */}
+//             <div className="grid md:grid-cols-2 gap-6 mb-4">
+//               <div className="bg-blue-50 p-4 rounded-lg">
+//                 <h3 className="text-xl font-bold text-blue-800 mb-2">Interpretation</h3>
+//                 <p className="text-blue-600">{queryResult.query_description || 'No description available'}</p>
+//               </div>
+
+//               <div className="bg-blue-50 p-4 rounded-lg">
+//                 <h3 className="text-xl font-bold text-blue-800 mb-2">LLM Recommendation</h3>
+//                 <p className="text-blue-600">{queryResult.llm_recommendation || 'No recommendation available'}</p>
+//               </div>
+//             </div>
+
+//             {/* Chart Section - Full Width */}
+//             {queryResult && queryResult.data.length > 0 && renderChart()}
 //           </div>
-//         </div>
-//         </div>
+//         )}
+//       </div>
 //     </div>
 //   );
 // };
 
 // export default DataGPT;
 
-//FRONTEND/DATAGPT.TSX with sidebar connection dropdowns
+
+
+//FRONTEND/DATAGPT.TSX code with auto select project, user selected dataset, table for one dataset as of now
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import Highcharts from 'highcharts';
@@ -404,6 +529,7 @@ interface QueryResult {
   llm_recommendation?: string;
   query_description?: string;
   chart_description?: string;
+  table_reference?: string;
 }
 
 interface DataGPTProps {
@@ -480,19 +606,40 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
   }, [selectedDataset]);
 
   // Existing handleSubmit method from previous implementation
+  // In the handleSubmit method, update to pass connection details
   const handleSubmit = async () => {
+    // Validate that a project, dataset, and table are selected
+    if (!selectedConnection || !selectedDataset || !selectedTable) {
+      setError('Please select a project, dataset, and table before querying.');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const geminiResponse = await axios.post('http://127.0.0.1:8080/gemini', { query });
+      // Parse the dataset to extract project and dataset names
+
+      const [project_id, dataset_name] = selectedDataset.split('.');
+
+      // Pass connection details to Gemini endpoint
+      const geminiResponse = await axios.post('http://127.0.0.1:8080/gemini', {
+        query,
+        project_id: project_id, // Use selected connection as project
+        dataset_id: dataset_name,
+        table_id: selectedTable
+      });
+
       const generatedSqlQuery = geminiResponse.data.sql_query;
       const queryDescription = geminiResponse.data.query_description;
+      const tableReference = geminiResponse.data.table_reference;
 
+      // Pass connection details to BigQuery endpoint
       const bigqueryResponse = await axios.post('http://127.0.0.1:8080/api/bigquery', {
         sql_query: generatedSqlQuery,
         original_query: query,
-        query_description: queryDescription
+        query_description: queryDescription,
+        table_reference: tableReference
       });
 
       setQueryResult({
@@ -507,7 +654,6 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
       setIsLoading(false);
     }
   };
-
   const handleToggleFullScreen = () => {
     setIsFullScreen(!isFullScreen);
   };
@@ -586,8 +732,8 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
                   <button
                     onClick={() => setChartTypeToDisplay(type)}
                     className={`p-2 rounded-md transition-all ${chartTypeToDisplay === type
-                        ? 'bg-blue-500 text-white'
-                        : 'hover:bg-gray-200 text-gray-600'
+                      ? 'bg-blue-500 text-white'
+                      : 'hover:bg-gray-200 text-gray-600'
                       }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -649,14 +795,14 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
   return (
     <div className="flex h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       {/* Left Sidebar - Connection Details */}
-      <div className="w-80 bg-white border-r border-gray-200 overflow-y-auto p-6 shadow-lg">
+      <div className="w-80 max-w-[30%] bg-white border-r border-gray-200 overflow-y-auto p-6 shadow-lg">
         <h2 className="text-2xl font-bold mb-6 text-blue-800 flex items-center">
           <Database className="mr-3 text-blue-600" /> Connection
         </h2>
-  
+
         {/* Project/Connection Dropdown */}
         <div className="mb-6">
-          <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
+          <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
             <Layers className="mr-2 text-blue-500" /> Project
           </label>
           <div className="relative">
@@ -664,8 +810,8 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
               value={selectedConnection}
               onChange={(e) => setSelectedConnection(e.target.value)}
               className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-lg 
-              focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-              appearance-none bg-white shadow-sm"
+            focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+            appearance-none bg-white shadow-sm"
             >
               {connections.map((connection) => (
                 <option key={connection} value={connection}>
@@ -680,17 +826,17 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
             </div>
           </div>
         </div>
-  
+
         {/* Dataset Dropdown */}
         <div className="mb-6">
-          <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
+          <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
             <Layers className="mr-2 text-blue-500" /> Dataset
           </label>
           <select
             value={selectedDataset}
             onChange={(e) => setSelectedDataset(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-            focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Select a Dataset</option>
             {datasets.map((dataset) => (
@@ -700,17 +846,17 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
             ))}
           </select>
         </div>
-  
+
         {/* Table Dropdown */}
         <div className="mb-6">
-          <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center">
+          <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
             <Table className="mr-2 text-blue-500" /> Table
           </label>
           <select
             value={selectedTable}
             onChange={(e) => setSelectedTable(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-            focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Select a Table</option>
             {tables.map((table) => (
@@ -721,123 +867,125 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
           </select>
         </div>
       </div>
-  
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Header - Full Width */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 md:p-6 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            {onBack && (
-              <button
-                onClick={onBack}
-                className="hover:bg-white/20 p-2 rounded-full transition-colors"
-              >
-                <ArrowLeft className="w-6 h-6" />
-              </button>
-            )}
-            <h1 className="text-xl md:text-2xl font-bold">InsightPlatrAI</h1>
+
+
+    {/* Main Content Area */}
+<div className="flex-1 flex flex-col">
+  {/* Header - Full Width */}
+  <div className="bg-gradient-to-r from-blue-700 to-purple-700 text-white p-4 md:p-6 flex items-center justify-between shadow-md">
+    <div className="flex items-center space-x-4">
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="hover:bg-white/20 p-2 rounded-full transition-colors"
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+      )}
+      <h1 className="text-xl md:text-2xl font-bold tracking-tight">InsightPlatrAI</h1>
+    </div>
+  </div>
+
+  {/* Query Input Section */}
+  <div className="p-4 md:p-6">
+    <div className="relative">
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Ask a data question in plain English"
+        className="w-full pl-12 pr-32 py-3 border-2 border-blue-500 rounded-xl 
+                   focus:outline-none focus:ring-2 focus:ring-blue-700 
+                   focus:border-transparent text-gray-900 
+                   transition-all duration-300 shadow-md
+                   placeholder-gray-500"
+      />
+      <Search
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 
+                   text-gray-500 w-5 h-5"
+      />
+      <button
+        onClick={handleSubmit}
+        disabled={isLoading}
+        className="absolute right-2 top-1/2 transform -translate-y-1/2 
+                   bg-gradient-to-r from-blue-600 to-purple-700 
+                   text-white px-4 py-2 rounded-lg 
+                   hover:opacity-90 transition-all 
+                   disabled:opacity-50 flex items-center space-x-2
+                   shadow-md"
+      >
+        {isLoading ? (
+          <div className="flex items-center">
+            <Loader2 className="mr-2 animate-spin" />
+            Processing...
           </div>
+        ) : (
+          'Submit Query'
+        )}
+      </button>
+    </div>
+  </div>
+
+  {/* Results Section - Scrollable */}
+  {queryResult && (
+    <div className="space-y-6 overflow-y-auto">
+      {/* Error Handling */}
+      {error && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg mx-8">
+          <p className="font-semibold">{error}</p>
         </div>
-  
-        {/* Query Input Section */}
-        <div className="p-4 md:p-6 bg-gray-50">
-          <div className="relative">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask a data question in plain English"
-              className="w-full pl-12 pr-32 py-3 border-2 border-blue-400 rounded-xl 
-                         focus:outline-none focus:ring-2 focus:ring-blue-600 
-                         focus:border-transparent text-gray-700 
-                         transition-all duration-300 shadow-sm"
-            />
-            <Search
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 
-                         text-gray-400 w-5 h-5"
-            />
-            <button
-              onClick={handleSubmit}
-              disabled={isLoading}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 
-                         bg-gradient-to-r from-blue-500 to-purple-600 
-                         text-white px-4 py-2 rounded-lg 
-                         hover:opacity-90 transition-all 
-                         disabled:opacity-50 flex items-center space-x-2"
-            >
-              {isLoading ? (
-                <div className="flex items-center">
-                  <Loader2 className="mr-2 animate-spin" />
-                  Processing...
-                </div>
-              ) : (
-                'Submit Query'
-              )}
-            </button>
-          </div>
+      )}
+      {/* Table Preview - Responsive with width constraint */}
+      <div className="w-auto ml-8">
+        <table className="w-auto border-collapse border border-gray-300 rounded-xl shadow-md">
+          <thead>
+            <tr>
+              {queryResult.columns.map((column) => (
+                <th
+                  key={column}
+                  className="border border-gray-300 px-4 py-2 bg-gray-100 font-bold text-left text-gray-700"
+                >
+                  {column}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {queryResult.data.map((row, idx) => (
+              <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                {queryResult.columns.map((column) => (
+                  <td
+                    key={column}
+                    className="border border-gray-300 px-4 py-2 text-sm text-gray-800"
+                  >
+                    {row[column] as string | number | boolean | null}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Descriptive Sections - Responsive Grid */}
+      <div className="grid md:grid-cols-2 gap-6 mb-4 mx-8">
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 shadow-sm">
+          <h3 className="text-xl font-bold text-blue-900 mb-2">Interpretation</h3>
+          <p className="text-blue-800">{queryResult.query_description || 'No description available'}</p>
         </div>
 
-            {/* Results Section - Scrollable */}
-            {queryResult && (
-              <div className="space-y-6 overflow-y-auto">
-                {/* Error Handling */}
-                {error && (
-                  <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg">
-                    <p className="font-semibold">{error}</p>
-                  </div>
-                )}
-
-                {/* Table Preview - Responsive */}
-                <div className="overflow-x-auto shadow-md rounded-lg   border-blue-400  border-2">
-                  <table className="w-full border-collapse border border-gray-500">
-                    <thead>
-                      <tr>
-                        {queryResult.columns.map((column) => (
-                          <th
-                            key={column}
-                            className="border border-gray-300 px-4 py-2 bg-gray-200 font-bold text-left"
-                          >
-                            {column}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {queryResult.data.map((row, idx) => (
-                        <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                          {queryResult.columns.map((column) => (
-                            <td
-                              key={column}
-                              className="border border-gray-300 px-4 py-2 text-sm text-gray-700"
-                            >
-                              {row[column] as string | number | boolean | null}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Descriptive Sections - Responsive Grid */}
-                <div className="grid md:grid-cols-2 gap-6 mb-4">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h3 className="text-xl font-bold text-blue-800 mb-2">Interpretation</h3>
-                    <p className="text-blue-600">{queryResult.query_description || 'No description available'}</p>
-                  </div>
-
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h3 className="text-xl font-bold text-blue-800 mb-2">LLM Recommendation</h3>
-                    <p className="text-blue-600">{queryResult.llm_recommendation || 'No recommendation available'}</p>
-                  </div>
-                </div>
-
-                {/* Chart Section - Full Width */}
-                {queryResult && queryResult.data.length > 0 && renderChart()}
-              </div>
-            )}
-          </div>
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 shadow-sm">
+          <h3 className="text-xl font-bold text-blue-900 mb-2">LLM Recommendation</h3>
+          <p className="text-blue-800">{queryResult.llm_recommendation || 'No recommendation available'}</p>
         </div>
+      </div>
+
+      {/* Chart Section - Full Width */}
+      {queryResult && queryResult.data.length > 0 && renderChart()}
+    </div>
+  )}
+</div>
+    </div>
   );
 };
 
