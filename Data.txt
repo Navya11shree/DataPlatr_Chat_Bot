@@ -1,1 +1,7 @@
 show me the DistributionAccountedCredit by journalcategory
+
+show me the  monthly trend of purchase amount
+
+show mw the amount credit amount by journal category
+
+show me the top 5 vendors by distribution amount

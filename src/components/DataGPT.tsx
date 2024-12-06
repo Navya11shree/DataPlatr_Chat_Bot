@@ -1,5 +1,4 @@
-
-//FRONTEND/DATAGPT.TSX
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import Highcharts from 'highcharts';
@@ -18,7 +17,8 @@ import {
   Table,
   Layers,
   Database,
-  AlertTriangle
+  AlertTriangle,
+  X
 } from 'lucide-react';
 
 // Color palettes
@@ -68,16 +68,119 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [chartTypeToDisplay, setChartTypeToDisplay] = useState<string>('column');
   const [selectedColorPalette, setSelectedColorPalette] = useState<ColorPaletteKey>('default');
-
-  // New state for BigQuery connection details
+// state for BigQuery connection details
   const [connections, setConnections] = useState<string[]>([]);
   const [datasets, setDatasets] = useState<string[]>([]);
   const [tables, setTables] = useState<string[]>([]);
   const [selectedConnection, setSelectedConnection] = useState<string>('');
   const [selectedDataset, setSelectedDataset] = useState<string>('');
   const [selectedTable, setSelectedTable] = useState<string>('');
+  //state for search functionality
+
 
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
+
+
+  // New state for search functionality
+const [datasetSearch, setDatasetSearch] = useState<string>('');
+const [tableSearch, setTableSearch] = useState<string>('');
+
+// Filtered datasets and tables based on search
+const filteredDatasets = datasets.filter(dataset => 
+  dataset.toLowerCase().includes(datasetSearch.toLowerCase())
+);
+
+const filteredTables = tables.filter(table => 
+  table.toLowerCase().includes(tableSearch.toLowerCase())
+);
+ // Function to render searchable select component
+ const renderSearchableSelect = (
+value: string, onChange: (value: string) => void, options: string[], placeholder: string, searchValue: string, onSearchChange: (value: string) => void, p0: unknown, p1: { optionClassName: string; containerClassName: string; }) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [isOpen, setIsOpen] = useState(false);
+  const selectRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div className="relative" ref={selectRef}>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg 
+        focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+        cursor-pointer flex items-center justify-between"
+      >
+        <span>{value || placeholder}</span>
+      </div>
+
+      {isOpen && (
+        <div 
+          className="absolute z-10 mt-1 w-full bg-white border border-gray-300 
+          rounded-lg shadow-lg max-h-60 overflow-y-auto"
+        >
+          {/* Search Input */}
+          <div className="p-2 sticky top-0 bg-white border-b">
+            <div className="relative">
+              <input 
+                type="text" 
+                placeholder={`Search ${placeholder}`}
+                value={searchValue}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className="w-full pl-8 pr-2 py-2 border rounded-lg 
+                focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <Search 
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 
+                text-gray-500 w-4 h-4" 
+              />
+              {searchValue && (
+                <X 
+                  onClick={() => onSearchChange('')}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 
+                  text-gray-500 w-4 h-4 cursor-pointer hover:text-gray-700" 
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Options List */}
+          <ul className="max-h-48 overflow-y-auto">
+            {options.length === 0 ? (
+              <li className="px-4 py-2 text-gray-500">No results found</li>
+            ) : (
+              options.map((option) => (
+                <li 
+                  key={option}
+                  onClick={() => {
+                    onChange(option);
+                    setIsOpen(false);
+                  }}
+                  className="px-4 py-2 hover:bg-blue-50 cursor-pointer 
+                  transition-colors duration-200"
+                >
+                  {option}
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
   // Fetch connection details on component mount
   useEffect(() => {
     const fetchConnectionDetails = async () => {
@@ -120,64 +223,6 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
     fetchTables();
   }, [selectedDataset]);
 
-  // In the handleSubmit method, update to pass connection details
-  // const handleSubmit = async () => {
-  //   // Validate that a project, dataset, and table are selected
-  //   if (!selectedConnection || !selectedDataset || !selectedTable) {
-  //     setError('Please select a project, dataset, and table before querying.');
-  //     return;
-  //   }
-
-  //   setIsLoading(true);
-  //   setError(null);
-
-  //   try {
-  //     // Parse the dataset to extract project and dataset names
-
-  //     const [project_id, dataset_name] = selectedDataset.split('.');
-
-  //     // Pass connection details to Gemini endpoint
-  //     const geminiResponse = await axios.post('http://127.0.0.1:8080/gemini', {
-  //       query,
-  //       table_name: `${project_id}.${dataset_name}.${selectedTable}`, // Combine project, dataset, and table into full table reference
-  //       project_id,
-  //       dataset_id: dataset_name,
-  //       table_id: selectedTable
-  //     });
-
-  //     const generatedSqlQuery = geminiResponse.data.sql_query;
-  //     const queryDescription = geminiResponse.data.query_description;
-
-  //     // Pass connection details to BigQuery endpoint
-  //     const bigqueryResponse = await axios.post('http://127.0.0.1:8080/api/bigquery', {
-  //       sql_query: generatedSqlQuery,
-  //       original_query: query,
-  //       query_description: queryDescription,
-  //       table_reference: `${project_id}.${dataset_name}.${selectedTable}`
-  //     });
-
-
-
-  //     setQueryResult({
-  //       ...bigqueryResponse.data,
-  //       query_description: queryDescription,
-  //     });
-  //     setChartTypeToDisplay(bigqueryResponse.data.chart_type?.toLowerCase() || 'column');
-  //   } catch (err) {
-  //     if (axios.isAxiosError(err) && err.response) {
-  //       if (err.response.status === 400) {
-  //         setError(err.response.data.error || ' Please choose a correct table or rephrase your query.');
-  //       } else {
-  //         setError('An error occurred while processing your query. Please try again.');
-  //       }
-  //     } else {
-  //       setError('An unexpected error occurred. Please try again.');
-  //     }
-  //     console.error(err);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
   const handleSubmit = async () => {
     // Clear previous errors and results
     setError(null);
@@ -185,19 +230,19 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
 
     // Comprehensive validation
     const validationErrors = [];
-    
+
     if (!selectedConnection) {
       validationErrors.push('Please select a project');
     }
-    
+
     if (!selectedDataset) {
       validationErrors.push('Please select a dataset');
     }
-    
+
     if (!selectedTable) {
       validationErrors.push('Please select a table');
     }
-    
+
     if (!query.trim()) {
       validationErrors.push('Please enter a query');
     }
@@ -253,19 +298,19 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
       setChartTypeToDisplay(bigqueryResponse.data.chart_type?.toLowerCase() || 'column');
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
-        // More detailed error handling
-        const errorMessage = err.response.data.message || 
-                             err.response.data.error || 
-                             'An unexpected error occurred';
+        const errorMessage =
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          'An error occurred while processing your query';
+
         setError(errorMessage);
-      } else {
-        setError('An unexpected network error occurred');
       }
       console.error(err);
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleToggleFullScreen = () => {
     setIsFullScreen(!isFullScreen);
   };
@@ -332,10 +377,13 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
         enabled: false,
       },
     };
-
     return (
-      <div className={`mt-4 ${isFullScreen ? 'fixed inset-0 z-50 bg-white p-8 overflow-auto' : ''}`}>
-        <div className="flex justify-between mb-2 space-x-2">
+      <div
+        className={`mt-4 ${isFullScreen
+          ? 'fixed inset-0 z-50 bg-white/95 p-8 flex flex-col items-center justify-center overflow-auto'
+          : ''}`}
+      >
+        <div className="flex justify-between mb-4 w-full max-w-6xl">
           <div className="flex space-x-2">
             {/* Chart Type Selector with Icons and Tooltips */}
             <div className="flex items-center space-x-2 bg-gray-100 p-2 rounded-lg">
@@ -361,7 +409,7 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
               ))}
             </div>
 
-            {/* Color Palette Dropdown with Better Styling */}
+            {/* Color Palette Dropdown */}
             <div className="relative">
               <select
                 value={selectedColorPalette}
@@ -370,8 +418,7 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
                   setSelectedColorPalette(palette);
                 }}
                 className="appearance-none w-full bg-gray-100 border-none rounded-lg 
-                           pl-4 pr-8 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
+                         pl-4 pr-8 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" >
                 {Object.keys(COLOR_PALETTES).map((palette) => (
                   <option key={palette} value={palette}>
                     {palette.charAt(0).toUpperCase() + palette.slice(1)} Palette
@@ -394,7 +441,8 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
             </button>
           </div>
         </div>
-        <div className={isFullScreen ? 'max-w-full h-full' : ''}>
+
+        <div className="h-[calc(100vh-250px)] w-full"> 
           <HighchartsReact
             highcharts={Highcharts}
             options={chartOptions}
@@ -405,86 +453,88 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
     );
   };
   return (
-    <div className="flex h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      {/* Left Sidebar - Connection Details */}
-      <div className="w-80 max-w-[30%] bg-white border-r border-gray-200 overflow-y-auto p-6 shadow-lg">
-        <h2 className="text-2xl font-bold mb-6 text-blue-800 flex items-center">
-          <Database className="mr-3 text-blue-600" /> Connection
-        </h2>
+    <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+     {/* Left Sidebar - Connection Details */}
+<div className="w-64 bg-white border-r border-gray-200 flex flex-col overflow-hidden shadow-lg">
+  {/* Fixed Header */}
+  <div className="px-4 py-4 bg-blue-50 border-b border-gray-200 sticky top-0 z-10">
+    <h2 className="text-2xl font-bold text-blue-800 flex items-center">
+      <Database className="mr-3 text-blue-600" /> Connection
+    </h2>
+  </div>
 
-        {/* Project/Connection Dropdown */}
-        <div className="mb-6">
-          <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-            <Layers className="mr-2 text-blue-500" /> Project
-          </label>
-          <div className="relative">
-            <select
-              value={selectedConnection}
-              onChange={(e) => setSelectedConnection(e.target.value)}
-              className="w-full px-4 py-2 pr-8 border border-gray-300 rounded-lg 
-            focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-            appearance-none bg-white shadow-sm"
-            >
-              {connections.map((connection) => (
-                <option key={connection} value={connection}>
-                  {connection}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* Dataset Dropdown */}
-        <div className="mb-6">
-          <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-            <Layers className="mr-2 text-blue-500" /> Dataset
-          </label>
-          <select
-            value={selectedDataset}
-            onChange={(e) => setSelectedDataset(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-          focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+  {/* Scrollable Content Container */}
+  <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-2 space-y-4">
+    {/* Project/Connection Dropdown */}
+    <div className="mb-4">
+      <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+        <Layers className="mr-2 text-blue-500" /> Project
+      </label>
+      <select
+        value={selectedConnection}
+        onChange={(e) => setSelectedConnection(e.target.value)}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg 
+        truncate overflow-ellipsis max-w-full
+        focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+      >
+        {connections.map((connection) => (
+          <option 
+            key={connection} 
+            value={connection} 
+            className="truncate"
           >
-            <option value="">Select a Dataset</option>
-            {datasets.map((dataset) => (
-              <option key={dataset} value={dataset}>
-                {dataset}
-              </option>
-            ))}
-          </select>
-        </div>
+            {connection}
+          </option>
+        ))}
+      </select>
+    </div>
 
-        {/* Table Dropdown */}
-        <div className="mb-6">
-          <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-            <Table className="mr-2 text-blue-500" /> Table
-          </label>
-          <select
-            value={selectedTable}
-            onChange={(e) => setSelectedTable(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-          focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">Select a Table</option>
-            {tables.map((table) => (
-              <option key={table} value={table}>
-                {table}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+    {/* Dataset Dropdown with Search */}
+    <div className="mb-4">
+      <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+        <Layers className="mr-2 text-blue-500" /> Dataset
+      </label>
+      {renderSearchableSelect(
+        selectedDataset, 
+        setSelectedDataset, 
+        filteredDatasets, 
+        'Select a Dataset', 
+        datasetSearch, 
+        setDatasetSearch,
+        <Layers className="mr-2 text-blue-500 w-4 h-4" />,
+        {
+          optionClassName: "truncate max-w-full",
+          containerClassName: "max-h-64 overflow-y-auto"
+        }
+      )}
+    </div>
 
+    {/* Table Dropdown with Search */}
+    <div className="mb-4">
+      <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+        <Table className="mr-2 text-blue-500" /> Table
+      </label>
+      {renderSearchableSelect(
+        selectedTable, 
+        setSelectedTable, 
+        filteredTables, 
+        'Select a Table', 
+        tableSearch, 
+        setTableSearch,
+        <Table className="mr-2 text-blue-500 w-4 h-4" />,
+        {
+          optionClassName: "truncate max-w-full",
+          containerClassName: "max-h-64 overflow-y-auto"
+        }
+      )}
+    </div>
+  </div>
+  </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Header - Full Width */}
-        <div className="bg-gradient-to-r from-blue-700 to-purple-700 text-white p-4 md:p-6 flex items-center justify-between shadow-md">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-700 to-purple-700 text-white p-4 flex items-center justify-between shadow-md">
           <div className="flex items-center space-x-4">
             {onBack && (
               <button
@@ -494,12 +544,12 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
                 <ArrowLeft className="w-6 h-6" />
               </button>
             )}
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight">InsightPlatrAI</h1>
+            <h1 className="text-xl font-bold tracking-tight">InsightPlatrAI</h1>
           </div>
         </div>
 
         {/* Query Input Section */}
-        <div className="p-4 md:p-6">
+        <div className="p-4">
           <div className="relative">
             <input
               type="text"
@@ -507,24 +557,24 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Ask a data question in plain English"
               className="w-full pl-12 pr-32 py-3 border-2 border-blue-500 rounded-xl 
-                   focus:outline-none focus:ring-2 focus:ring-blue-700 
-                   focus:border-transparent text-gray-900 
-                   transition-all duration-300 shadow-md
-                   placeholder-gray-500"
+            focus:outline-none focus:ring-2 focus:ring-blue-700 
+            focus:border-transparent text-gray-900 
+            transition-all duration-300 shadow-md
+            placeholder-gray-500"
             />
             <Search
               className="absolute left-4 top-1/2 transform -translate-y-1/2 
-                   text-gray-500 w-5 h-5"
+            text-gray-500 w-5 h-5"
             />
             <button
               onClick={handleSubmit}
               disabled={isLoading}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 
-                   bg-gradient-to-r from-blue-600 to-purple-700 
-                   text-white px-4 py-2 rounded-lg 
-                   hover:opacity-90 transition-all 
-                   disabled:opacity-50 flex items-center space-x-2
-                   shadow-md"
+            bg-gradient-to-r from-blue-600 to-purple-700 
+            text-white px-4 py-2 rounded-lg 
+            hover:opacity-90 transition-all 
+            disabled:opacity-50 flex items-center space-x-2
+            shadow-md"
             >
               {isLoading ? (
                 <div className="flex items-center">
@@ -538,70 +588,73 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
           </div>
         </div>
 
-        {/* Results Section - Scrollable */}
-        {queryResult && (
-          <div className="space-y-6 overflow-y-auto">
-             {/* Error Display Section */}
-      {error && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl">
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg flex items-center shadow-md">
-            <AlertTriangle className="mr-3 text-red-500 w-6 h-6" />
-            <p className="font-semibold">{error}</p>
-          </div>
-        </div>
-      )}
-            {/* Table Preview - Responsive with width constraint */}
-            <div className="w-auto ml-8 rounded-lg border">
-              <table className="w-auto border-collapse border border-blue-400  shadow-md rounded-lg ">
-                <thead>
-                  <tr>
-                    {queryResult.columns.map((column) => (
-                      <th
-                        key={column}
-                        className="border border-blue-400 px-4 py-2 bg-gray-100 font-bold text-left text-gray-700"
-                      >
-                        {column}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {queryResult.data.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-blue-300 transition-colors">
-                      {queryResult.columns.map((column) => (
-                        <td
-                          key={column}
-                          className="border border-blue-400 rounded-lg  px-4 py-2 text-sm text-gray-800"
-                        >
-                          {row[column] as string | number | boolean | null}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Error Display */}
+        {error && (
+          <div className="px-4 mb-4">
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg flex items-center shadow-md">
+              <AlertTriangle className="mr-3 text-red-500 w-6 h-6" />
+              <p className="font-semibold">{error}</p>
             </div>
-            {/* Descriptive Sections - Responsive Grid */}
-            <div className="grid md:grid-cols-2 gap-6 mb-4 mx-8">
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
-                <h3 className="text-xl font-bold text-blue-900 mb-2">Interpretation</h3>
-                <p className="text-blue-800">{queryResult.query_description || 'No description available'}</p>
-              </div>
-
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
-                <h3 className="text-xl font-bold text-blue-900 mb-2">LLM Recommendation</h3>
-                <p className="text-blue-800">{queryResult.llm_recommendation || 'No recommendation available'}</p>
-              </div>
-            </div>
-
-            {/* Chart Section - Full Width */}
-            {queryResult && queryResult.data.length > 0 && renderChart()}
           </div>
         )}
+
+        {/* Results Section */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-6">
+          {queryResult && (
+            <>
+              {/* Table Preview */}
+              {/* Table Preview - Responsive with width constraint */}
+              <div className="w-auto ml-8 rounded-lg border">
+                <table className="w-auto border-collapse border border-blue-400  shadow-md rounded-lg ">
+                  <thead>
+                    <tr>
+                      {queryResult.columns.map((column) => (
+                        <th
+                          key={column}
+                          className="border border-blue-400 px-4 py-2 bg-gray-100 font-bold text-left text-gray-700"
+                        >
+                          {column}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {queryResult.data.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-blue-300 transition-colors">
+                        {queryResult.columns.map((column) => (
+                          <td
+                            key={column}
+                            className="border border-blue-400 rounded-lg  px-4 py-2 text-sm text-gray-800"
+                          >
+                            {row[column] as string | number | boolean | null}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Descriptive Sections */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
+                  <h3 className="text-xl font-bold text-blue-900 mb-2">Interpretation</h3>
+                  <p className="text-blue-800">{queryResult.query_description || 'No description available'}</p>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
+                  <h3 className="text-xl font-bold text-blue-900 mb-2">LLM Recommendation</h3>
+                  <p className="text-blue-800">{queryResult.llm_recommendation || 'No recommendation available'}</p>
+                </div>
+              </div>
+
+              {/* Chart Section */}
+              {queryResult && queryResult.data.length > 0 && renderChart()}
+            </>
+          )}
+        </div>
       </div>
     </div>
-
   );
 };
-
 export default DataGPT;
