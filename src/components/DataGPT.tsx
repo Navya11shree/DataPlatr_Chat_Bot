@@ -1,3 +1,4 @@
+
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
@@ -68,7 +69,7 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [chartTypeToDisplay, setChartTypeToDisplay] = useState<string>('column');
   const [selectedColorPalette, setSelectedColorPalette] = useState<ColorPaletteKey>('default');
-// state for BigQuery connection details
+  // state for BigQuery connection details
   const [connections, setConnections] = useState<string[]>([]);
   const [datasets, setDatasets] = useState<string[]>([]);
   const [tables, setTables] = useState<string[]>([]);
@@ -82,104 +83,104 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
 
 
   // New state for search functionality
-const [datasetSearch, setDatasetSearch] = useState<string>('');
-const [tableSearch, setTableSearch] = useState<string>('');
+  const [datasetSearch, setDatasetSearch] = useState<string>('');
+  const [tableSearch, setTableSearch] = useState<string>('');
 
-// Filtered datasets and tables based on search
-const filteredDatasets = datasets.filter(dataset => 
-  dataset.toLowerCase().includes(datasetSearch.toLowerCase())
-);
+  // Filtered datasets and tables based on search
+  const filteredDatasets = datasets.filter(dataset =>
+    dataset.toLowerCase().includes(datasetSearch.toLowerCase())
+  );
 
-const filteredTables = tables.filter(table => 
-  table.toLowerCase().includes(tableSearch.toLowerCase())
-);
- // Function to render searchable select component
- const renderSearchableSelect = (
-value: string, onChange: (value: string) => void, options: string[], placeholder: string, searchValue: string, onSearchChange: (value: string) => void, p0: unknown, p1: { optionClassName: string; containerClassName: string; }) => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [isOpen, setIsOpen] = useState(false);
-  const selectRef = useRef<HTMLDivElement>(null);
+  const filteredTables = tables.filter(table =>
+    table.toLowerCase().includes(tableSearch.toLowerCase())
+  );
+  // Function to render searchable select component
+  const renderSearchableSelect = (
+    value: string, onChange: (value: string) => void, options: string[], placeholder: string, searchValue: string, onSearchChange: (value: string) => void, p0: unknown, p1: { optionClassName: string; containerClassName: string; }) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [isOpen, setIsOpen] = useState(false);
+    const selectRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
+    // Close dropdown when clicking outside
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+          setIsOpen(false);
+        }
+      };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
 
-  return (
-    <div className="relative" ref={selectRef}>
-      <div 
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg 
+    return (
+      <div className="relative" ref={selectRef}>
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg 
         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
         cursor-pointer flex items-center justify-between"
-      >
-        <span>{value || placeholder}</span>
-      </div>
-
-      {isOpen && (
-        <div 
-          className="absolute z-10 mt-1 w-full bg-white border border-gray-300 
-          rounded-lg shadow-lg max-h-60 overflow-y-auto"
         >
-          {/* Search Input */}
-          <div className="p-2 sticky top-0 bg-white border-b">
-            <div className="relative">
-              <input 
-                type="text" 
-                placeholder={`Search ${placeholder}`}
-                value={searchValue}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="w-full pl-8 pr-2 py-2 border rounded-lg 
-                focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <Search 
-                className="absolute left-2 top-1/2 transform -translate-y-1/2 
-                text-gray-500 w-4 h-4" 
-              />
-              {searchValue && (
-                <X 
-                  onClick={() => onSearchChange('')}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 
-                  text-gray-500 w-4 h-4 cursor-pointer hover:text-gray-700" 
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Options List */}
-          <ul className="max-h-48 overflow-y-auto">
-            {options.length === 0 ? (
-              <li className="px-4 py-2 text-gray-500">No results found</li>
-            ) : (
-              options.map((option) => (
-                <li 
-                  key={option}
-                  onClick={() => {
-                    onChange(option);
-                    setIsOpen(false);
-                  }}
-                  className="px-4 py-2 hover:bg-blue-50 cursor-pointer 
-                  transition-colors duration-200"
-                >
-                  {option}
-                </li>
-              ))
-            )}
-          </ul>
+          <span>{value || placeholder}</span>
         </div>
-      )}
-    </div>
-  );
-};
+
+        {isOpen && (
+          <div
+            className="absolute z-10 mt-1 w-full bg-white border border-gray-300 
+          rounded-lg shadow-lg max-h-60 overflow-y-auto"
+          >
+            {/* Search Input */}
+            <div className="p-2 sticky top-0 bg-white border-b">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={`Search ${placeholder}`}
+                  value={searchValue}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="w-full pl-8 pr-2 py-2 border rounded-lg 
+                focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <Search
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 
+                text-gray-500 w-4 h-4"
+                />
+                {searchValue && (
+                  <X
+                    onClick={() => onSearchChange('')}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 
+                  text-gray-500 w-4 h-4 cursor-pointer hover:text-gray-700"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Options List */}
+            <ul className="max-h-48 overflow-y-auto">
+              {options.length === 0 ? (
+                <li className="px-4 py-2 text-gray-500">No results found</li>
+              ) : (
+                options.map((option) => (
+                  <li
+                    key={option}
+                    onClick={() => {
+                      onChange(option);
+                      setIsOpen(false);
+                    }}
+                    className="px-4 py-2 hover:bg-blue-50 cursor-pointer 
+                  transition-colors duration-200"
+                  >
+                    {option}
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Fetch connection details on component mount
   useEffect(() => {
@@ -442,7 +443,7 @@ value: string, onChange: (value: string) => void, options: string[], placeholder
           </div>
         </div>
 
-        <div className="h-[calc(100vh-250px)] w-full"> 
+        <div className="h-[calc(100vh-250px)] w-full">
           <HighchartsReact
             highcharts={Highcharts}
             options={chartOptions}
@@ -453,83 +454,83 @@ value: string, onChange: (value: string) => void, options: string[], placeholder
     );
   };
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-     {/* Left Sidebar - Connection Details */}
-<div className="w-64 bg-white border-r border-gray-200 flex flex-col overflow-hidden shadow-lg">
-  {/* Fixed Header */}
-  <div className="px-4 py-4 bg-blue-50 border-b border-gray-200 sticky top-0 z-10">
-    <h2 className="text-2xl font-bold text-blue-800 flex items-center">
-      <Database className="mr-3 text-blue-600" /> Connection
-    </h2>
-  </div>
+    <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 overflow-hidden">
+      {/* Left Sidebar - Connection Details */}
+      <div className="w-64 bg-white border-r border-gray-200 flex flex-col overflow-hidden shadow-lg">
+        {/* Fixed Header */}
+        <div className="px-6 py-5 bg-gradient-to-r from-blue-600 to-purple-700 
+          text-white sticky top-0 z-10 flex items-center space-x-3">
+          <Database className="w-6 h-6 text-white/80" />
+          <h2 className="text-2xl font-bold tracking-wide">Connection</h2>
+        </div>
 
-  {/* Scrollable Content Container */}
-  <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-2 space-y-4">
-    {/* Project/Connection Dropdown */}
-    <div className="mb-4">
-      <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-        <Layers className="mr-2 text-blue-500" /> Project
-      </label>
-      <select
-        value={selectedConnection}
-        onChange={(e) => setSelectedConnection(e.target.value)}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg 
+        {/* Scrollable Content Container */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar px-4 py-2 space-y-4">
+          {/* Project/Connection Dropdown */}
+          <div className="mb-4">
+            <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <Layers className="mr-2 text-blue-500" /> Project
+            </label>
+            <select
+              value={selectedConnection}
+              onChange={(e) => setSelectedConnection(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg 
         truncate overflow-ellipsis max-w-full
         focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      >
-        {connections.map((connection) => (
-          <option 
-            key={connection} 
-            value={connection} 
-            className="truncate"
-          >
-            {connection}
-          </option>
-        ))}
-      </select>
-    </div>
+            >
+              {connections.map((connection) => (
+                <option
+                  key={connection}
+                  value={connection}
+                  className="truncate"
+                >
+                  {connection}
+                </option>
+              ))}
+            </select>
+          </div>
 
-    {/* Dataset Dropdown with Search */}
-    <div className="mb-4">
-      <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-        <Layers className="mr-2 text-blue-500" /> Dataset
-      </label>
-      {renderSearchableSelect(
-        selectedDataset, 
-        setSelectedDataset, 
-        filteredDatasets, 
-        'Select a Dataset', 
-        datasetSearch, 
-        setDatasetSearch,
-        <Layers className="mr-2 text-blue-500 w-4 h-4" />,
-        {
-          optionClassName: "truncate max-w-full",
-          containerClassName: "max-h-64 overflow-y-auto"
-        }
-      )}
-    </div>
+          {/* Dataset Dropdown with Search */}
+          <div className="mb-4">
+            <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <Layers className="mr-2 text-blue-500" /> Dataset
+            </label>
+            {renderSearchableSelect(
+              selectedDataset,
+              setSelectedDataset,
+              filteredDatasets,
+              'Select a Dataset',
+              datasetSearch,
+              setDatasetSearch,
+              <Layers className="mr-2 text-blue-500 w-4 h-4" />,
+              {
+                optionClassName: "truncate max-w-full",
+                containerClassName: "max-h-64 overflow-y-auto"
+              }
+            )}
+          </div>
 
-    {/* Table Dropdown with Search */}
-    <div className="mb-4">
-      <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-        <Table className="mr-2 text-blue-500" /> Table
-      </label>
-      {renderSearchableSelect(
-        selectedTable, 
-        setSelectedTable, 
-        filteredTables, 
-        'Select a Table', 
-        tableSearch, 
-        setTableSearch,
-        <Table className="mr-2 text-blue-500 w-4 h-4" />,
-        {
-          optionClassName: "truncate max-w-full",
-          containerClassName: "max-h-64 overflow-y-auto"
-        }
-      )}
-    </div>
-  </div>
-  </div>
+          {/* Table Dropdown with Search */}
+          <div className="mb-4">
+            <label className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <Table className="mr-2 text-blue-500" /> Table
+            </label>
+            {renderSearchableSelect(
+              selectedTable,
+              setSelectedTable,
+              filteredTables,
+              'Select a Table',
+              tableSearch,
+              setTableSearch,
+              <Table className="mr-2 text-blue-500 w-4 h-4" />,
+              {
+                optionClassName: "truncate max-w-full",
+                containerClassName: "max-h-64 overflow-y-auto"
+              }
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -548,33 +549,33 @@ value: string, onChange: (value: string) => void, options: string[], placeholder
           </div>
         </div>
 
-        {/* Query Input Section */}
-        <div className="p-4">
-          <div className="relative">
+        {/* Query Input with Enhanced Design */}
+        <div className="px-8 py-6 bg-white/50 backdrop-blur-sm">
+                    <div className="relative max-w-4xl mx-auto">
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask a data question in plain English"
-              className="w-full pl-12 pr-32 py-3 border-2 border-blue-500 rounded-xl 
-            focus:outline-none focus:ring-2 focus:ring-blue-700 
-            focus:border-transparent text-gray-900 
-            transition-all duration-300 shadow-md
-            placeholder-gray-500"
+              placeholder="Ask me anything..."
+              className="w-full pl-14 pr-36 py-4 border-2 border-transparent 
+                bg-gray-100 rounded-2xl text-gray-900 
+                focus:border-blue-500 focus:ring-2 focus:ring-blue-300 
+                focus:bg-white transition-all duration-300 
+                text-lg placeholder-gray-500 shadow-lg"
             />
             <Search
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 
-            text-gray-500 w-5 h-5"
+              className="absolute left-5 top-1/2 transform -translate-y-1/2 
+                text-gray-500 w-6 h-6"
             />
             <button
               onClick={handleSubmit}
               disabled={isLoading}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 
-            bg-gradient-to-r from-blue-600 to-purple-700 
-            text-white px-4 py-2 rounded-lg 
-            hover:opacity-90 transition-all 
-            disabled:opacity-50 flex items-center space-x-2
-            shadow-md"
+                bg-gradient-to-r from-blue-600 to-purple-700 
+                text-white px-6 py-3 rounded-xl 
+                hover:opacity-90 transition-all 
+                disabled:opacity-50 flex items-center 
+                space-x-2 shadow-md hover:shadow-xl"
             >
               {isLoading ? (
                 <div className="flex items-center">
@@ -600,58 +601,60 @@ value: string, onChange: (value: string) => void, options: string[], placeholder
 
         {/* Results Section */}
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          {queryResult && (
-            <>
-              {/* Table Preview */}
-              {/* Table Preview - Responsive with width constraint */}
-              <div className="w-auto ml-8 rounded-lg border">
-                <table className="w-auto border-collapse border border-blue-400  shadow-md rounded-lg ">
-                  <thead>
-                    <tr>
-                      {queryResult.columns.map((column) => (
-                        <th
-                          key={column}
-                          className="border border-blue-400 px-4 py-2 bg-gray-100 font-bold text-left text-gray-700"
-                        >
-                          {column}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {queryResult.data.map((row, idx) => (
-                      <tr key={idx} className="hover:bg-blue-300 transition-colors">
+          <div className="max-w-full overflow-x-auto space-y-6">
+            {queryResult && (
+              <>
+                {/* Table Preview */}
+
+                <div className="w-auto ml-8 rounded-lg border">
+                  <table className="w-auto border-collapse border border-blue-400  shadow-md rounded-lg ">
+                    <thead>
+                      <tr>
                         {queryResult.columns.map((column) => (
-                          <td
+                          <th
                             key={column}
-                            className="border border-blue-400 rounded-lg  px-4 py-2 text-sm text-gray-800"
+                            className="border border-blue-400 px-4 py-2 bg-gray-100 font-bold text-left text-gray-700"
                           >
-                            {row[column] as string | number | boolean | null}
-                          </td>
+                            {column}
+                          </th>
                         ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Descriptive Sections */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
-                  <h3 className="text-xl font-bold text-blue-900 mb-2">Interpretation</h3>
-                  <p className="text-blue-800">{queryResult.query_description || 'No description available'}</p>
+                    </thead>
+                    <tbody>
+                      {queryResult.data.map((row, idx) => (
+                        <tr key={idx} className="hover:bg-blue-300 transition-colors">
+                          {queryResult.columns.map((column) => (
+                            <td
+                              key={column}
+                              className="border border-blue-400 rounded-lg  px-4 py-2 text-sm text-gray-800"
+                            >
+                              {row[column] as string | number | boolean | null}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
 
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
-                  <h3 className="text-xl font-bold text-blue-900 mb-2">LLM Recommendation</h3>
-                  <p className="text-blue-800">{queryResult.llm_recommendation || 'No recommendation available'}</p>
-                </div>
-              </div>
+                {/* Descriptive Sections */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
+                    <h3 className="text-xl font-bold text-blue-900 mb-2">Data Interpretation</h3>
+                    <p className="text-blue-800">{queryResult.query_description || 'No description available'}</p>
+                  </div>
 
-              {/* Chart Section */}
-              {queryResult && queryResult.data.length > 0 && renderChart()}
-            </>
-          )}
+                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
+                    <h3 className="text-xl font-bold text-blue-900 mb-2">LLM Viz</h3>
+                    <p className="text-blue-800">{queryResult.llm_recommendation || 'No recommendation available'}</p>
+                  </div>
+                </div>
+
+                {/* Chart Section */}
+                {queryResult && queryResult.data.length > 0 && renderChart()}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

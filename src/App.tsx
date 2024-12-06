@@ -2,13 +2,12 @@
 import React, { useState } from 'react';
 import './App.css';
 import Login from './components/Login';
-import DataPlatrInterface from './components/DataPlatrInterface';
+// import DataPlatrInterface from './components/DataPlatrInterface';
 import DemoSelection from './components/DemoSelection';
-import SearchAppComponent from './components/SearchAppComponent';
+// import SearchAppComponent from './components/SearchAppComponent';
 import TabularSearchApp from './components/TabularSearchApp';
 import DocumentSearch from './components/DocumentSearch';
-import DataGPT from './components/DataGPT'; // new component
-
+import DataGPT from './components/DataGPT'; 
 type DemoId = 'search' | 'ai-conversation' | 'demo-3' | 'demo-4' | 'tabular-search' | 'document-search' | 'data-gpt';
 
 function App() {
@@ -30,14 +29,12 @@ function App() {
 
   
   switch (selectedDemo) {
-    case 'search':
-      return <SearchAppComponent onBack={() => setSelectedDemo(null)} onSelectDemo={setSelectedDemo} />;
     case 'tabular-search':
-      return <TabularSearchApp onBack={() => setSelectedDemo('search')} />;
+      return <TabularSearchApp onBack={() => setSelectedDemo(null)} />;
     case 'document-search':
-      return <DocumentSearch onBack={() => setSelectedDemo('search')} />;
-    case 'ai-conversation':
-      return <DataPlatrInterface onBack={() => setSelectedDemo(null)} />;
+      return <DocumentSearch onBack={() => setSelectedDemo(null)} />;
+    // case 'ai-conversation':
+    //   return <DataPlatrInterface onBack={() => setSelectedDemo(null)} />;
     case 'data-gpt':
       return <DataGPT onBack={() => setSelectedDemo(null)}/>;
     default:

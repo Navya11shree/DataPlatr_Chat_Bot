@@ -325,13 +325,13 @@ def bigquery_endpoint():
         SQL Query: {sql_query}
         Result Description: {data_preview_description}
         Provide your response in the format:
-        Recommended Visualization: [Chart type or "none"]
+        Viz: [Chart type or "none"]
         """
         viz_response = model.generate_content([viz_prompt])
 
         chart_type = None
-        if "Recommended Visualization:" in viz_response.text:
-            chart_type = viz_response.text.split("Recommended Visualization:")[1].split("\n")[0].strip().lower()
+        if "Viz:" in viz_response.text:
+            chart_type = viz_response.text.split("Viz:")[1].split("\n")[0].strip().lower()
             
             valid_chart_types = ["bar", "line", "scatter", "pie"]
             if chart_type and " " in chart_type:
