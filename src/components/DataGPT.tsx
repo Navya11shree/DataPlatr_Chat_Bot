@@ -1,4 +1,6 @@
+//Datagpt.tsx frontend
 
+//code with not cloudrun backend url implemented 
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
@@ -311,6 +313,333 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
       setIsLoading(false);
     }
   };
+
+
+
+
+
+// //code with cloudrun backend url implemented, code changed until handletoglle fullscreen
+
+// /* eslint-disable react-hooks/rules-of-hooks */
+// import React, { useState, useRef, useEffect } from 'react';
+// import axios from 'axios';
+// import Highcharts from 'highcharts';
+// import HighchartsReact from 'highcharts-react-official';
+// import {
+//   Expand,
+//   Shrink,
+//   Search,
+//   ArrowLeft,
+//   BarChart,
+//   PieChart,
+//   LineChart,
+//   AreaChart,
+//   ColumnsIcon,
+//   Loader2,
+//   Table,
+//   Layers,
+//   Database,
+//   AlertTriangle,
+//   X
+// } from 'lucide-react';
+
+// // Define the backend URL
+// const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://dataplatr-backend-313726293085.us-central1.run.app';
+
+// // Color palettes
+// const COLOR_PALETTES = {
+//   default: ['#2196F3', '#4CAF50', '#FF9800', '#9C27B0', '#F44336'],
+//   pastel: ['#FFD1DC', '#FFEBCD', '#E6E6FA', '#98FB98', '#87CEFA'],
+//   earth: ['#8B4513', '#A0522D', '#DEB887', '#D2691E', '#CD853F'],
+//   ocean: ['#1E90FF', '#00CED1', '#20B2AA', '#4682B4', '#5F9EA0'],
+//   sunset: ['#FF4500', '#FF6347', '#FF7F50', '#FF8C00', '#FFA500'],
+// } as const;
+
+// type ColorPaletteKey = keyof typeof COLOR_PALETTES;
+
+// // Types
+// interface RowData {
+//   [key: string]: string | number | boolean | null;
+// }
+
+// interface QueryResult {
+//   data: RowData[];
+//   columns: string[];
+//   chart_type?: string;
+//   llm_recommendation?: string;
+//   query_description?: string;
+//   chart_description?: string;
+//   table_reference?: string;
+// }
+
+// interface DataGPTProps {
+//   onBack?: () => void;
+// }
+
+// // Chart type icons mapping with labels
+// const CHART_TYPES = [
+//   { type: 'column', label: 'Column Chart', Icon: ColumnsIcon },
+//   { type: 'line', label: 'Line Chart', Icon: LineChart },
+//   { type: 'pie', label: 'Pie Chart', Icon: PieChart },
+//   { type: 'bar', label: 'Bar Chart', Icon: BarChart },
+//   { type: 'area', label: 'Area Chart', Icon: AreaChart }
+// ];
+
+// const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
+//   const [query, setQuery] = useState<string>('');
+//   const [queryResult, setQueryResult] = useState<QueryResult | null>(null);
+//   const [isLoading, setIsLoading] = useState<boolean>(false);
+//   const [error, setError] = useState<string | null>(null);
+//   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
+//   const [chartTypeToDisplay, setChartTypeToDisplay] = useState<string>('column');
+//   const [selectedColorPalette, setSelectedColorPalette] = useState<ColorPaletteKey>('default');
+//   // state for BigQuery connection details
+//   const [connections, setConnections] = useState<string[]>([]);
+//   const [datasets, setDatasets] = useState<string[]>([]);
+//   const [tables, setTables] = useState<string[]>([]);
+//   const [selectedConnection, setSelectedConnection] = useState<string>('');
+//   const [selectedDataset, setSelectedDataset] = useState<string>('');
+//   const [selectedTable, setSelectedTable] = useState<string>('');
+
+//   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
+
+//   // New state for search functionality
+//   const [datasetSearch, setDatasetSearch] = useState<string>('');
+//   const [tableSearch, setTableSearch] = useState<string>('');
+
+//   // Filtered datasets and tables based on search
+//   const filteredDatasets = datasets.filter(dataset =>
+//     dataset.toLowerCase().includes(datasetSearch.toLowerCase())
+//   );
+
+//   const filteredTables = tables.filter(table =>
+//     table.toLowerCase().includes(tableSearch.toLowerCase())
+//   );
+
+//   // Function to render searchable select component
+//   const renderSearchableSelect = (
+//     value: string, 
+//     onChange: (value: string) => void, 
+//     options: string[], 
+//     placeholder: string, 
+//     searchValue: string, 
+//     onSearchChange: (value: string) => void, 
+//     iconElement: React.ReactNode, 
+//     additionalProps: { optionClassName: string; containerClassName: string }
+//   ) => {
+//     const [isOpen, setIsOpen] = useState(false);
+//     const selectRef = useRef<HTMLDivElement>(null);
+
+//     // Close dropdown when clicking outside
+//     useEffect(() => {
+//       const handleClickOutside = (event: MouseEvent) => {
+//         if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+//           setIsOpen(false);
+//         }
+//       };
+
+//       document.addEventListener('mousedown', handleClickOutside);
+//       return () => {
+//         document.removeEventListener('mousedown', handleClickOutside);
+//       };
+//     }, []);
+
+//     return (
+//       <div className="relative" ref={selectRef}>
+//         <div
+//           onClick={() => setIsOpen(!isOpen)}
+//           className="w-full px-3 py-2 border border-gray-300 rounded-lg 
+//         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+//         cursor-pointer flex items-center justify-between"
+//         >
+//           <span>{value || placeholder}</span>
+//         </div>
+
+//         {isOpen && (
+//           <div
+//             className="absolute z-10 mt-1 w-full bg-white border border-gray-300 
+//           rounded-lg shadow-lg max-h-60 overflow-y-auto"
+//           >
+//             {/* Search Input */}
+//             <div className="p-2 sticky top-0 bg-white border-b">
+//               <div className="relative">
+//                 <input
+//                   type="text"
+//                   placeholder={`Search ${placeholder}`}
+//                   value={searchValue}
+//                   onChange={(e) => onSearchChange(e.target.value)}
+//                   className="w-full pl-8 pr-2 py-2 border rounded-lg 
+//                 focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                 />
+//                 <Search
+//                   className="absolute left-2 top-1/2 transform -translate-y-1/2 
+//                 text-gray-500 w-4 h-4"
+//                 />
+//                 {searchValue && (
+//                   <X
+//                     onClick={() => onSearchChange('')}
+//                     className="absolute right-2 top-1/2 transform -translate-y-1/2 
+//                   text-gray-500 w-4 h-4 cursor-pointer hover:text-gray-700"
+//                   />
+//                 )}
+//               </div>
+//             </div>
+
+//             {/* Options List */}
+//             <ul className="max-h-48 overflow-y-auto">
+//               {options.length === 0 ? (
+//                 <li className="px-4 py-2 text-gray-500">No results found</li>
+//               ) : (
+//                 options.map((option) => (
+//                   <li
+//                     key={option}
+//                     onClick={() => {
+//                       onChange(option);
+//                       setIsOpen(false);
+//                     }}
+//                     className="px-4 py-2 hover:bg-blue-50 cursor-pointer 
+//                   transition-colors duration-200"
+//                   >
+//                     {option}
+//                   </li>
+//                 ))
+//               )}
+//             </ul>
+//           </div>
+//         )}
+//       </div>
+//     );
+//   };
+
+//   // Fetch connection details on component mount
+//   useEffect(() => {
+//     const fetchConnectionDetails = async () => {
+//       try {
+//         // Fetch connections using the backend URL
+//         const connectionsResponse = await axios.get(`${backendUrl}/api/bigquery/connections`);
+//         setConnections(connectionsResponse.data);
+
+//         // Auto-select first connection if available
+//         if (connectionsResponse.data.length > 0) {
+//           setSelectedConnection(connectionsResponse.data[0]);
+
+//           // Fetch datasets for the selected connection
+//           const datasetsResponse = await axios.get(`${backendUrl}/api/bigquery/datasets`);
+//           setDatasets(datasetsResponse.data);
+//         }
+//       } catch (err) {
+//         console.error('Error fetching connection details:', err);
+//         setError('Failed to load connection details');
+//       }
+//     };
+
+//     fetchConnectionDetails();
+//   }, []);
+
+//   // Fetch tables when dataset changes
+//   useEffect(() => {
+//     const fetchTables = async () => {
+//       if (selectedDataset) {
+//         try {
+//           const tablesResponse = await axios.get(`${backendUrl}/api/bigquery/tables?dataset_id=${selectedDataset}`);
+//           setTables(tablesResponse.data);
+//         } catch (err) {
+//           console.error('Error fetching tables:', err);
+//           setError('Failed to load tables');
+//         }
+//       }
+//     };
+
+//     fetchTables();
+//   }, [selectedDataset]);
+
+  // const handleSubmit = async () => {
+  //   // Clear previous errors and results
+  //   setError(null);
+  //   setQueryResult(null);
+
+  //   // Comprehensive validation
+  //   const validationErrors = [];
+
+  //   if (!selectedConnection) {
+  //     validationErrors.push('Please select a project');
+  //   }
+
+  //   if (!selectedDataset) {
+  //     validationErrors.push('Please select a dataset');
+  //   }
+
+  //   if (!selectedTable) {
+  //     validationErrors.push('Please select a table');
+  //   }
+
+  //   if (!query.trim()) {
+  //     validationErrors.push('Please enter a query');
+  //   }
+
+  //   if (validationErrors.length > 0) {
+  //     setError(validationErrors.join('. '));
+  //     return;
+  //   }
+
+  //   setIsLoading(true);
+
+  //   try {
+  //     const [project_id, dataset_name] = selectedDataset.split('.');
+
+  //     // Gemini endpoint request
+  //     const geminiResponse = await axios.post(`${backendUrl}/gemini`, {
+  //       query,
+  //       table_name: `${project_id}.${dataset_name}.${selectedTable}`,
+  //       project_id,
+  //       dataset_id: dataset_name,
+  //       table_id: selectedTable
+  //     });
+
+  //     // Check for error in Gemini response
+  //     if (geminiResponse.data.error) {
+  //       setError(geminiResponse.data.message);
+  //       setIsLoading(false);
+  //       return;
+  //     }
+
+  //     const generatedSqlQuery = geminiResponse.data.sql_query;
+  //     const queryDescription = geminiResponse.data.query_description;
+
+  //     // BigQuery endpoint request
+  //     const bigqueryResponse = await axios.post(`${backendUrl}/api/bigquery`, {
+  //       sql_query: generatedSqlQuery,
+  //       original_query: query,
+  //       query_description: queryDescription,
+  //       table_reference: `${project_id}.${dataset_name}.${selectedTable}`
+  //     });
+
+  //     // Check for error in BigQuery response
+  //     if (bigqueryResponse.data.error) {
+  //       setError(bigqueryResponse.data.message);
+  //       setIsLoading(false);
+  //       return;
+  //     }
+
+  //     setQueryResult({
+  //       ...bigqueryResponse.data,
+  //       query_description: queryDescription,
+  //     });
+  //     setChartTypeToDisplay(bigqueryResponse.data.chart_type?.toLowerCase() || 'column');
+  //   } catch (err) {
+  //     if (axios.isAxiosError(err) && err.response) {
+  //       const errorMessage =
+  //         err.response?.data?.message ||
+  //         err.response?.data?.error ||
+  //         'An error occurred while processing your query';
+
+  //       setError(errorMessage);
+  //     }
+  //     console.error(err);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const handleToggleFullScreen = () => {
     setIsFullScreen(!isFullScreen);
@@ -661,3 +990,4 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
   );
 };
 export default DataGPT;
+

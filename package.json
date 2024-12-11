@@ -26,14 +26,19 @@
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
-  },
+
+    "scripts": {
+      "start-frontend": "react-scripts start",
+      "start-backend": "C:/Users/KISHAN/AppData/Local/Microsoft/WindowsApps/python3.11.exe e:/dataplatr_chatbot/Datagptai.py",
+      "start": "concurrently \"npm run start-frontend\" \"npm run start-backend\"",
+      "build": "react-scripts build",
+      "test": "react-scripts test",
+      "eject": "react-scripts eject",
+      "predeploy": "npm run build",
+      "deploy": "gh-pages -d build"
+    }
+  
+  ,
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -55,6 +60,7 @@
   "devDependencies": {
     "@types/react-plotly.js": "^2.6.3",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
     "gh-pages": "^6.2.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14"

@@ -2,6 +2,18 @@ show me the DistributionAccountedCredit by journalcategory
 
 show me the  monthly trend of purchase amount
 
-show mw the amount credit amount by journal category
+show me the amount credit amount by journal category
 
 show me the top 5 vendors by distribution amount
+
+
+
+  // "scripts": {
+  //   "start": "react-scripts start",
+  //   "build": "react-scripts build",
+  //   "test": "react-scripts test",
+  //   "eject": "react-scripts eject",
+  //   "predeploy": "npm run build",
+  //   "deploy": "gh-pages -d build"
+  
+
