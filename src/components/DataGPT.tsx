@@ -452,20 +452,19 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
           </div>
 
           {/* Color Palette Dropdown */}
-          <div className="relative group"></div>
-          <div className="relative">
+          <div className="flex items-center space-x-4">
             <select
               value={selectedColorPalette}
               onChange={(e) => {
                 const palette = e.target.value as ColorPaletteKey;
                 setSelectedColorPalette(palette);
               }}
-              className="appearance-none w-full bg-white border-2 border-blue-200 
-              rounded-lg pl-4 pr-8 py-3 text-gray-700 
-              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-              transition-all duration-300 ease-in-out
-              hover:border-blue-300 hover:shadow-md
-              text-base font-medium"
+              className="appearance-none w-48 bg-white border-2 border-blue-200 
+            rounded-lg pl-4 pr-8 py-3 text-gray-700 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+            transition-all duration-300 ease-in-out
+            hover:border-blue-300 hover:shadow-md
+            text-base font-medium"
             >
               {Object.keys(COLOR_PALETTES).map((palette) => (
                 <option
@@ -478,27 +477,15 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
               ))}
             </select>
 
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
-              <svg
-                className="fill-current h-4 w-4 text-gray-400 ml-2 
-        group-hover:text-blue-500 transition-colors duration-300"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-              >
-                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-              </svg>
-            </div>
+            <button
+              onClick={handleToggleFullScreen}
+              className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-all flex items-center"
+            >
+              {isFullScreen ? <Shrink className="mr-2" /> : <Expand className="mr-2" />}
+              {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
+            </button>
           </div>
-
-          <button
-            onClick={handleToggleFullScreen}
-            className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-all flex items-center"
-          >
-            {isFullScreen ? <Shrink className="mr-2" /> : <Expand className="mr-2" />}
-            {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
-          </button>
         </div>
-
         <div className="h-[calc(100vh-250px)] w-full">
           <HighchartsReact
             key={`${item.id}-${item.chartType}-${selectedColorPalette}`}
