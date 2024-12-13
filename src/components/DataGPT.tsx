@@ -318,17 +318,17 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
       };
 
       // When adding to chat history, include a default chart type
-    const newChatHistoryItem: ChatHistoryItem = {
-      id: `chat_${Date.now()}`,
-      timestamp: new Date(),
-      query,
-      result: newResult,
-      chartType: newResult.chart_type?.toLowerCase() || 'column' // Set initial chart type
-    };
+      const newChatHistoryItem: ChatHistoryItem = {
+        id: `chat_${Date.now()}`,
+        timestamp: new Date(),
+        query,
+        result: newResult,
+        chartType: newResult.chart_type?.toLowerCase() || 'column' // Set initial chart type
+      };
 
       setChatHistory(prev => [...prev, newChatHistoryItem]);
       setQueryResult(newResult);
-     
+
 
       // Clear query input after successful submission
       setQuery('');
@@ -380,10 +380,10 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
       yAxis:
         (item.chartType || 'column') !== 'pie'
           ? {
-              title: {
-                text: item.result.columns[1],
-              },
-            }
+            title: {
+              text: item.result.columns[1],
+            },
+          }
           : undefined,
       series: [
         {
@@ -425,10 +425,10 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
                 <button
                   onClick={() => {
                     // Update the specific chat history item's chart type
-                    setChatHistory(prev => 
-                      prev.map(chatItem => 
-                        chatItem.id === item.id 
-                          ? { ...chatItem, chartType: type } 
+                    setChatHistory(prev =>
+                      prev.map(chatItem =>
+                        chatItem.id === item.id
+                          ? { ...chatItem, chartType: type }
                           : chatItem
                       )
                     );
@@ -438,52 +438,68 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
                     : 'hover:bg-gray-200 text-gray-600'
                     }`}
                 >
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-6 h-6" />
                 </button>
-                  {/* Tooltip */}
-                  <div className="absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 
+                {/* Tooltip */}
+                <div className="absolute z-10 bottom-full left-1/2 transform -translate-x-1/2 mb-2 
                     bg-gray-700 text-white text-xs rounded-md py-1 px-2 opacity-0 
                     group-hover:opacity-100 transition-opacity duration-300 
                     pointer-events-none whitespace-nowrap">
-                    {label}
-                  </div>
+                  {label}
                 </div>
-              ))}
-            </div>
-
-            {/* Color Palette Dropdown */}
-            <div className="relative">
-              <select
-                value={selectedColorPalette}
-                onChange={(e) => {
-                  const palette = e.target.value as ColorPaletteKey;
-                  setSelectedColorPalette(palette);
-                }}
-                className="appearance-none w-full bg-gray-100 border-none rounded-lg 
-                         pl-4 pr-8 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" >
-                {Object.keys(COLOR_PALETTES).map((palette) => (
-                  <option key={palette} value={palette}>
-                    {palette.charAt(0).toUpperCase() + palette.slice(1)} Palette
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                </svg>
               </div>
-            </div>
-
-            <button
-              onClick={handleToggleFullScreen}
-              className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-all flex items-center"
-            >
-              {isFullScreen ? <Shrink className="mr-2" /> : <Expand className="mr-2" />}
-              {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
-            </button>
+            ))}
           </div>
 
-          <div className="h-[calc(100vh-250px)] w-full">
+          {/* Color Palette Dropdown */}
+          <div className="relative group"></div>
+          <div className="relative">
+            <select
+              value={selectedColorPalette}
+              onChange={(e) => {
+                const palette = e.target.value as ColorPaletteKey;
+                setSelectedColorPalette(palette);
+              }}
+              className="appearance-none w-full bg-white border-2 border-blue-200 
+              rounded-lg pl-4 pr-8 py-3 text-gray-700 
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+              transition-all duration-300 ease-in-out
+              hover:border-blue-300 hover:shadow-md
+              text-base font-medium"
+            >
+              {Object.keys(COLOR_PALETTES).map((palette) => (
+                <option
+                  key={palette}
+                  value={palette}
+                  className="bg-white text-gray-800 hover:bg-blue-50"
+                >
+                  {palette.charAt(0).toUpperCase() + palette.slice(1)} Palette
+                </option>
+              ))}
+            </select>
+
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+              <svg
+                className="fill-current h-4 w-4 text-gray-400 ml-2 
+        group-hover:text-blue-500 transition-colors duration-300"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+              </svg>
+            </div>
+          </div>
+
+          <button
+            onClick={handleToggleFullScreen}
+            className="p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-all flex items-center"
+          >
+            {isFullScreen ? <Shrink className="mr-2" /> : <Expand className="mr-2" />}
+            {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
+          </button>
+        </div>
+
+        <div className="h-[calc(100vh-250px)] w-full">
           <HighchartsReact
             key={`${item.id}-${item.chartType}-${selectedColorPalette}`}
             highcharts={Highcharts}
@@ -491,7 +507,7 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
             ref={chartComponentRef}
           />
         </div>
-        </div>
+      </div>
     );
   };
   const renderChatHistoryItem = (item: ChatHistoryItem) => {
@@ -511,14 +527,14 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
                 </span>
               </div>
             </div>
-  
+
             <div className="mb-6">
               <h3 className="font-bold text-gray-600">Query:</h3>
               <p className="font-bold text-xl text-blue-700">{item.query}</p>
             </div>
           </div>
         </div>
-  
+
         {/* Response Section - Left Aligned Message Bubble */}
         <div className="flex justify-start w-full mb-4">
           <div className="relative max-w-[80%] bg-white rounded-2xl p-4 shadow-sm border border-blue-400">
@@ -526,7 +542,7 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
             <div className="mb-4">
               <h3 className="font-bold text-gray-600">Results:</h3>
               <div className="w-auto ml-8 rounded-lg border">
-              <table className="w-auto border-collapse border border-blue-400  shadow-md rounded-lg ">
+                <table className="w-auto border-collapse border border-blue-400  shadow-md rounded-lg ">
                   <thead>
                     <tr>
                       {item.result.columns.map((column) => (
@@ -556,20 +572,20 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
                 </table>
               </div>
             </div>
-  
+
             {/* Descriptive Sections */}
             <div className="grid md:grid-cols-2 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
                 <h3 className="text-xl font-bold text-blue-900 mb-2">Data Interpretation</h3>
                 <p className="text-blue-800">{item.result.query_description || 'No description available'}</p>
               </div>
-  
+
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
                 <h3 className="text-xl font-bold text-blue-900 mb-2">LLM Viz</h3>
                 <p className="text-blue-800">{item.result.llm_recommendation || 'No recommendation available'}</p>
               </div>
             </div>
-  
+
             {/* Chart in Chat History */}
             {item.result.data && item.result.data.length > 0 && (
               <div className="mt-4">
