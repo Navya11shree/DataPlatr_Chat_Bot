@@ -30,5 +30,9 @@ service-account-key.json
 
 node_modules
 
+credentials_resources
+
 datagpt-bigquery.json
+
 datagpt-gemini.json
+

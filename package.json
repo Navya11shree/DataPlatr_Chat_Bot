@@ -29,7 +29,7 @@
 
     "scripts": {
       "start-frontend": "react-scripts start",
-      "start-backend": "C:/Users/KISHAN/AppData/Local/Microsoft/WindowsApps/python3.11.exe e:/dataplatr_chatbot/Datagptai.py",
+      "start-backend": "C:/Users/KISHAN/AppData/Local/Microsoft/WindowsApps/python3.11.exe e:/dataplatr_chatbot/src/backend_datagptai/Datagptai.py",
       "start": "concurrently \"npm run start-frontend\" \"npm run start-backend\"",
       "build": "react-scripts build",
       "test": "react-scripts test",

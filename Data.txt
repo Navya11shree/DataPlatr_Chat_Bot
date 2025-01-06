@@ -12,6 +12,6 @@ show me the top 5 vendors by distribution amount
   //   "test": "react-scripts test",
   //   "eject": "react-scripts eject",
   //   "predeploy": "npm run build",
-  //   "deploy": "gh-pages -d build"
+  //   "deploy": "gh-pages -d build"}
   
 

@@ -1,0 +1,30 @@
+# Install Flask: A lightweight web framework for building web applications and APIs
+pip install flask
+
+# Install Flask-CORS: Enables Cross-Origin Resource Sharing (CORS) support for Flask
+pip install flask-cors
+
+# Install Google Cloud BigQuery: Client library to interact with BigQuery
+pip install google-cloud-bigquery
+
+# Install Google Generative AI: Client library for Google's generative AI services (e.g., language models)
+pip install google-generativeai
+
+# Install Plotly: A library for creating interactive and high-quality visualizations in Python
+pip install plotly
+
+# Install Pandas: A powerful data manipulation and analysis library for structured data
+pip install pandas
+
+# Install Python-dotenv: Loads environment variables from a .env file for managing sensitive data
+pip install python-dotenv
+
+# For npm dependency: Install Concurrently to run multiple scripts simultaneously in development
+# Example usage in package.json scripts:
+# "scripts": {
+#   "start-frontend": "react-scripts start",  # Starts the React frontend
+#   "start-backend": "C:/Users/KISHAN/AppData/Local/Microsoft/WindowsApps/python3.11.exe e:/dataplatr_chatbot/src/backend_datagptai/Datagptai.py",  # Starts the Python backend
+#   "start": "concurrently \"npm run start-frontend\" \"npm run start-backend\""  # Runs both frontend and backend together
+# }
+npm install concurrently --save-dev
+

@@ -2,9 +2,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import Login from './components/Login';
-// import DataPlatrInterface from './components/DataPlatrInterface';
 import DemoSelection from './components/DemoSelection';
-// import SearchAppComponent from './components/SearchAppComponent';
 import TabularSearchApp from './components/TabularSearchApp';
 import DocumentSearch from './components/DocumentSearch';
 import DataGPT from './components/DataGPT'; 
@@ -33,8 +31,6 @@ function App() {
       return <TabularSearchApp onBack={() => setSelectedDemo(null)} />;
     case 'document-search':
       return <DocumentSearch onBack={() => setSelectedDemo(null)} />;
-    // case 'ai-conversation':
-    //   return <DataPlatrInterface onBack={() => setSelectedDemo(null)} />;
     case 'data-gpt':
       return <DataGPT onBack={() => setSelectedDemo(null)}/>;
     default:

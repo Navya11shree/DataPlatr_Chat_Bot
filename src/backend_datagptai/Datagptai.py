@@ -15,8 +15,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Configure credentials (these should be set as environment variables in production)
-BIGQUERY_CREDENTIALS = "E:\dataplatr_chatbot\datagpt-bigquery.json"
-GEMINI_CREDENTIALS = "E:\dataplatr_chatbot\datagpt-gemini.json"
+BIGQUERY_CREDENTIALS = "E:\dataplatr_chatbot\src\credentials_resources\datagpt-bigquery.json"
+GEMINI_CREDENTIALS = "E:\dataplatr_chatbot\src\credentials_resources\datagpt-gemini.json"
 
 # Dataset ID
 DATASET_ID = "dataplatr-sandbox.LLM_UseCases"
