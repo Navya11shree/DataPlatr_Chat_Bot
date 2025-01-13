@@ -1,3 +1,4 @@
+#Install Required Python Packages
 # Install Flask: A lightweight web framework for building web applications and APIs
 pip install flask
 
@@ -13,11 +14,13 @@ pip install google-generativeai
 # Install Plotly: A library for creating interactive and high-quality visualizations in Python
 pip install plotly
 
-# Install Pandas: A powerful data manipulation and analysis library for structured data
+# Install Pandas:  data manipulation and analysis library for structured data
 pip install pandas
 
 # Install Python-dotenv: Loads environment variables from a .env file for managing sensitive data
 pip install python-dotenv
+
+
 
 # For npm dependency: Install Concurrently to run multiple scripts simultaneously in development
 # Example usage in package.json scripts:

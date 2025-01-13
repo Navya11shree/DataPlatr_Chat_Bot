@@ -756,7 +756,7 @@
 
 
 //17-12-2024 sperated sidebar connection into seperate component(DataConnectionSidebar.tsx)
-
+//DataGPT.Tsx
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import Highcharts from 'highcharts';
