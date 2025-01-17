@@ -4,12 +4,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import DataConnectionSidebar from './DataConnectionSidebar'; // Import the sidebar component
+import DataConnectionSidebar from './DataConnectionSidebar';
+import TablePreview from './TablePreview';
 import {
   Expand,
   Shrink,
   Search,
-
   BarChart,
   PieChart,
   LineChart,
@@ -18,7 +18,7 @@ import {
   Loader2,
   AlertTriangle,
   Clock,
-  ArrowLeft
+  TableIcon
 } from 'lucide-react';
 import Header from './Header';
 
@@ -81,7 +81,7 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
   const [selectedConnection, setSelectedConnection] = useState<string>('');
   const [selectedDataset, setSelectedDataset] = useState<string>('');
   const [selectedTable, setSelectedTable] = useState<string>('');
-
+  const [showTablePreview, setShowTablePreview] = useState(false);
   // New state for chat history
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
 
@@ -259,8 +259,8 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
     return (
       <div
         className={`mt-4 ${isFullScreen
-            ? 'fixed inset-0 z-50 bg-white/95 p-8 flex flex-col items-center justify-center overflow-auto'
-            : ''
+          ? 'fixed inset-0 z-50 bg-white/95 p-8 flex flex-col items-center justify-center overflow-auto'
+          : ''
           }`}
       >
         <div className="flex justify-between mb-4 w-full max-w-6xl">
@@ -269,7 +269,6 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
               <div key={type} className="relative group">
                 <button
                   onClick={() => {
-                    // Update the specific chat history item's chart type
                     setChatHistory((prev) =>
                       prev.map((chatItem) =>
                         chatItem.id === item.id
@@ -279,8 +278,8 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
                     );
                   }}
                   className={`p-2 rounded-md transition-all ${item.chartType === type
-                      ? 'bg-blue-500 text-white'
-                      : 'hover:bg-gray-200 text-gray-600'
+                    ? 'bg-blue-500 text-white'
+                    : 'hover:bg-gray-200 text-gray-600'
                     }`}
                 >
                   <Icon className="w-6 h-6" />
@@ -307,11 +306,11 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
                 setSelectedColorPalette(palette);
               }}
               className="appearance-none w-48 bg-white border-2 border-blue-200 
-            rounded-lg pl-4 pr-8 py-3 text-gray-700 
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-            transition-all duration-300 ease-in-out
-            hover:border-blue-300 hover:shadow-md
-            text-base font-medium"
+                rounded-lg pl-4 pr-8 py-3 text-gray-700 
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                transition-all duration-300 ease-in-out
+                hover:border-blue-300 hover:shadow-md
+                text-base font-medium"
             >
               {Object.keys(COLOR_PALETTES).map((palette) => (
                 <option
@@ -374,7 +373,7 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
             <div className="mb-4">
               <h3 className="font-bold text-gray-600">Results:</h3>
               <div className="w-auto ml-8 rounded-lg border">
-                <table className="w-auto border-collapse border border-blue-400  shadow-md rounded-lg ">
+                <table className="w-auto border-collapse border border-blue-400 shadow-md rounded-lg">
                   <thead>
                     <tr>
                       {item.result.columns.map((column) => (
@@ -431,21 +430,30 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen bg-blue-50">
-      <div className="w-full">
+    <div className="h-screen flex flex-col overflow-hidden bg-blue-50">
+      <div>
         <Header title="InsightPlatrAI" onBack={onBack!} />
       </div>
 
-      <div className="flex min-h-[calc(100vh-64px)]">
+      <div className="flex flex-1 overflow-hidden">
         <DataConnectionSidebar
           onConnectionChange={(connection) => setSelectedConnection(connection)}
           onDatasetChange={(dataset) => setSelectedDataset(dataset)}
           onTableChange={(table) => setSelectedTable(table)}
         />
-
         <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Header bar */}
           <div className="bg-blue-700 text-white p-4 flex items-center justify-between shadow-md">
             <h1 className="text-xl font-bold tracking-tight">InsightPlatrAI</h1>
+            <button
+              onClick={() => setShowTablePreview(true)}
+              disabled={!selectedTable}
+              className="flex items-center space-x-2 bg-white text-blue-700 px-4 py-2 rounded-lg 
+                hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <TableIcon className="w-5 h-5" />
+              <span>Preview Table</span>
+            </button>
           </div>
 
           {error && (
@@ -458,6 +466,15 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
           )}
 
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            {showTablePreview && selectedDataset && selectedTable && (
+              <TablePreview
+                projectId={selectedDataset.split('.')[0]}
+                datasetId={selectedDataset.split('.')[1]}
+                tableId={selectedTable}
+                onClose={() => setShowTablePreview(false)}
+              />
+            )}
+
             <div
               ref={chatHistoryRef}
               className="max-w-full overflow-y-auto space-y-6 h-[calc(100vh-400px)] pr-4"
@@ -477,23 +494,23 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Ask me anything..."
                 className="w-full pl-14 pr-36 py-4 border-2 border-transparent
-                        bg-gray-100 rounded-2xl text-gray-900
-                        focus:border-blue-500 focus:ring-2 focus:ring-blue-300
-                        focus:bg-white transition-all duration-300
-                        text-lg placeholder-gray-500 shadow-lg"
+                bg-gray-100 rounded-2xl text-gray-900
+                focus:border-blue-500 focus:ring-2 focus:ring-blue-300
+                focus:bg-white transition-all duration-300
+                text-lg placeholder-gray-500 shadow-lg"
               />
               <Search
                 className="absolute left-5 top-1/2 transform -translate-y-1/2
-                        text-gray-500 w-6 h-6"
+                text-gray-500 w-6 h-6"
               />
               <button
                 onClick={handleSubmit}
                 disabled={isLoading}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2
-                        bg-blue-700 text-white px-6 py-3 rounded-xl
-                        hover:opacity-90 transition-all
-                        disabled:opacity-50 flex items-center
-                        space-x-2 shadow-md hover:shadow-xl"
+               bg-gradient-to-r from-blue-600 to-purple-700  text-white px-6 py-3 rounded-xl
+                hover:opacity-90 transition-all
+                disabled:opacity-50 flex items-center
+                space-x-2 shadow-md hover:shadow-xl"
               >
                 {isLoading ? (
                   <div className="flex items-center">

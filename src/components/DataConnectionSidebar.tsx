@@ -182,7 +182,7 @@ const DataConnectionSidebar: React.FC<DataConnectionSidebarProps> = ({
   return (
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col overflow-hidden shadow-lg">
       {/* Fixed Header */}
-      <div className="px-6 py-5 bg-gradient-to-r from-blue-600 to-purple-700 
+      <div className="px-6 py-5 bg-blue-700
         text-white sticky top-0 z-10 flex items-center space-x-3">
         <Database className="w-6 h-6 text-white/80" />
         <h2 className="text-2xl font-bold tracking-wide">Connection</h2>

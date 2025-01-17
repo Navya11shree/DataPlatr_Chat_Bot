@@ -377,5 +377,53 @@ def bigquery_endpoint():
             'traceback': traceback.format_exc()
         }), 500
 
+
+
+        # Add this new endpoint to Datagptai.py
+
+@app.route('/api/bigquery/preview', methods=['GET'])
+def get_table_preview():
+    try:
+        project_id = request.args.get('project_id')
+        dataset_id = request.args.get('dataset_id')
+        table_id = request.args.get('table_id')
+        
+        if not all([project_id, dataset_id, table_id]):
+            return jsonify({
+                'error': True,
+                'message': 'Project ID, Dataset ID, and Table ID are required'
+            }), 400
+            
+        bq_client = initialize_bigquery()
+        
+        # Construct the preview query
+        query = f"""
+        SELECT *
+        FROM `{project_id}.{dataset_id}.{table_id}`
+        LIMIT 15
+        """
+        
+        query_job = bq_client.query(query)
+        df = query_job.to_dataframe()
+        
+        # Convert datetime columns
+        processed_data = df.apply(
+            lambda col: col.map(convert_datetime) if pd.api.types.is_datetime64_any_dtype(col) else col
+        )
+        
+        return jsonify({
+            'data': processed_data.to_dict(orient='records'),
+            'columns': df.columns.tolist()
+        })
+        
+    except Exception as e:
+        logger.error(f"Table Preview Error: {e}")
+        logger.error(traceback.format_exc())
+        return jsonify({
+            'error': True,
+            'message': 'Failed to fetch table preview',
+            'details': str(e)
+        }), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
