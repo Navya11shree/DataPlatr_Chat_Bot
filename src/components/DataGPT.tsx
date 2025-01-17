@@ -9,7 +9,7 @@ import {
   Expand,
   Shrink,
   Search,
-  ArrowLeft,
+
   BarChart,
   PieChart,
   LineChart,
@@ -17,8 +17,10 @@ import {
   ColumnsIcon,
   Loader2,
   AlertTriangle,
-  Clock
+  Clock,
+  ArrowLeft
 } from 'lucide-react';
+import Header from './Header';
 
 // Color palettes
 const COLOR_PALETTES = {
@@ -256,11 +258,10 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
 
     return (
       <div
-        className={`mt-4 ${
-          isFullScreen
+        className={`mt-4 ${isFullScreen
             ? 'fixed inset-0 z-50 bg-white/95 p-8 flex flex-col items-center justify-center overflow-auto'
             : ''
-        }`}
+          }`}
       >
         <div className="flex justify-between mb-4 w-full max-w-6xl">
           <div className="flex items-center space-x-2 bg-gray-100 p-2 rounded-lg">
@@ -277,11 +278,10 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
                       )
                     );
                   }}
-                  className={`p-2 rounded-md transition-all ${
-                    item.chartType === type
+                  className={`p-2 rounded-md transition-all ${item.chartType === type
                       ? 'bg-blue-500 text-white'
                       : 'hover:bg-gray-200 text-gray-600'
-                  }`}
+                    }`}
                 >
                   <Icon className="w-6 h-6" />
                 </button>
@@ -399,131 +399,117 @@ const DataGPT: React.FC<DataGPTProps> = ({ onBack }) => {
                           </td>
                         ))}
                       </tr>
-                      ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-                {/* Descriptive Sections */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
-                    <h3 className="text-xl font-bold text-blue-900 mb-2">Data Interpretation</h3>
-                    <p className="text-blue-800">{item.result.query_description || 'No description available'}</p>
-                  </div>
+            {/* Descriptive Sections */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
+                <h3 className="text-xl font-bold text-blue-900 mb-2">Data Interpretation</h3>
+                <p className="text-blue-800">{item.result.query_description || 'No description available'}</p>
+              </div>
 
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
-                    <h3 className="text-xl font-bold text-blue-900 mb-2">LLM Viz</h3>
-                    <p className="text-blue-800">{item.result.llm_recommendation || 'No recommendation available'}</p>
-                  </div>
-                </div>
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-400 shadow-sm">
+                <h3 className="text-xl font-bold text-blue-900 mb-2">LLM Viz</h3>
+                <p className="text-blue-800">{item.result.llm_recommendation || 'No recommendation available'}</p>
+              </div>
+            </div>
 
-                {/* Chart in Chat History */}
-                {item.result.data && item.result.data.length > 0 && (
-                  <div className="mt-4">
-                    {renderChartForItem(item)}
-                  </div>
-                )}
+            {/* Chart in Chat History */}
+            {item.result.data && item.result.data.length > 0 && (
+              <div className="mt-4">
+                {renderChartForItem(item)}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-blue-50">
+      <div className="w-full">
+        <Header title="InsightPlatrAI" onBack={onBack!} />
+      </div>
+
+      <div className="flex min-h-[calc(100vh-64px)]">
+        <DataConnectionSidebar
+          onConnectionChange={(connection) => setSelectedConnection(connection)}
+          onDatasetChange={(dataset) => setSelectedDataset(dataset)}
+          onTableChange={(table) => setSelectedTable(table)}
+        />
+
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="bg-blue-700 text-white p-4 flex items-center justify-between shadow-md">
+            <h1 className="text-xl font-bold tracking-tight">InsightPlatrAI</h1>
+          </div>
+
+          {error && (
+            <div className="px-4 mb-4">
+              <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg flex items-center shadow-md">
+                <AlertTriangle className="mr-3 text-red-500 w-6 h-6" />
+                <p className="font-semibold">{error}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            <div
+              ref={chatHistoryRef}
+              className="max-w-full overflow-y-auto space-y-6 h-[calc(100vh-400px)] pr-4"
+            >
+              <div className="space-y-4">
+                {chatHistory.map(renderChatHistoryItem)}
+                <div ref={resultsEndRef} />
               </div>
             </div>
           </div>
-        );
-      };
 
-      return (
-        <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 overflow-hidden">
-          {/* Use the new DataConnectionSidebar component */}
-          <DataConnectionSidebar 
-            onConnectionChange={(connection: React.SetStateAction<string>) => setSelectedConnection(connection)}
-            onDatasetChange={(dataset: React.SetStateAction<string>) => setSelectedDataset(dataset)}
-            onTableChange={(table: React.SetStateAction<string>) => setSelectedTable(table)}
-          />
-
-          {/* Main Content Area */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-blue-700 to-purple-700 text-white p-4 flex items-center justify-between shadow-md">
-              <div className="flex items-center space-x-4">
-                {onBack && (
-                  <button
-                    onClick={onBack}
-                    className="hover:bg-white/20 p-2 rounded-full transition-colors"
-                  >
-                    <ArrowLeft className="w-6 h-6" />
-                  </button>
-                )}
-                <h1 className="text-xl font-bold tracking-tight">InsightPlatrAI</h1>
-              </div>
-            </div>
-
-            {/* Query Input with Enhanced Design */}
-            <div className="px-8 py-6 bg-white/50 backdrop-blur-sm">
-              <div className="relative max-w-4xl mx-auto">
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Ask me anything..."
-                  className="w-full pl-14 pr-36 py-4 border-2 border-transparent 
-                    bg-gray-100 rounded-2xl text-gray-900 
-                    focus:border-blue-500 focus:ring-2 focus:ring-blue-300 
-                    focus:bg-white transition-all duration-300 
-                    text-lg placeholder-gray-500 shadow-lg"
-                />
-                <Search
-                  className="absolute left-5 top-1/2 transform -translate-y-1/2 
-                    text-gray-500 w-6 h-6"
-                />
-                <button
-                  onClick={handleSubmit}
-                  disabled={isLoading}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 
-                    bg-gradient-to-r from-blue-600 to-purple-700 
-                    text-white px-6 py-3 rounded-xl 
-                    hover:opacity-90 transition-all 
-                    disabled:opacity-50 flex items-center 
-                    space-x-2 shadow-md hover:shadow-xl"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center">
-                      <Loader2 className="mr-2 animate-spin" />
-                      Processing...
-                    </div>
-                  ) : (
-                    'Submit Query'
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Error Display */}
-            {error && (
-              <div className="px-4 mb-4">
-                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg flex items-center shadow-md">
-                  <AlertTriangle className="mr-3 text-red-500 w-6 h-6" />
-                  <p className="font-semibold">{error}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Results Section with Chat History */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-6">
-              <div
-                ref={chatHistoryRef}
-                className="max-w-full overflow-y-auto space-y-6 h-[calc(100vh-300px)] pr-4"
+          <div className="px-8 py-6 bg-white/50 backdrop-blur-sm">
+            <div className="relative max-w-4xl mx-auto">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Ask me anything..."
+                className="w-full pl-14 pr-36 py-4 border-2 border-transparent
+                        bg-gray-100 rounded-2xl text-gray-900
+                        focus:border-blue-500 focus:ring-2 focus:ring-blue-300
+                        focus:bg-white transition-all duration-300
+                        text-lg placeholder-gray-500 shadow-lg"
+              />
+              <Search
+                className="absolute left-5 top-1/2 transform -translate-y-1/2
+                        text-gray-500 w-6 h-6"
+              />
+              <button
+                onClick={handleSubmit}
+                disabled={isLoading}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2
+                        bg-blue-700 text-white px-6 py-3 rounded-xl
+                        hover:opacity-90 transition-all
+                        disabled:opacity-50 flex items-center
+                        space-x-2 shadow-md hover:shadow-xl"
               >
-                {/* Chat History Scrollable Area */}
-                <div className="space-y-4">
-                  {chatHistory.map(renderChatHistoryItem)}
-                  <div ref={resultsEndRef} /> {/* Scroll anchor */}
-                </div>
-              </div>
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <Loader2 className="mr-2 animate-spin" />
+                    Processing...
+                  </div>
+                ) : (
+                  'Submit Query'
+                )}
+              </button>
             </div>
           </div>
         </div>
-      );
-    };
+      </div>
+    </div>
+  );
+};
 
-    export default DataGPT;
-
-
+export default DataGPT;

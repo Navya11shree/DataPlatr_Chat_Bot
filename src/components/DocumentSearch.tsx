@@ -1,6 +1,7 @@
 //DocumentSearch.tsx
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft } from "lucide-react";
+import Header from './Header';
 
 interface DocumentSearchProps {
   onBack: () => void;
@@ -58,6 +59,7 @@ const DocumentSearch: React.FC<DocumentSearchProps> = ({ onBack }) => {
 
   return (
     <div className="fixed inset-0 bg-white flex flex-col">
+      <Header title="Document Search" onBack={onBack} />
       {/* Custom styles for the widget */}
       <style>
         {`
@@ -122,3 +124,5 @@ const DocumentSearch: React.FC<DocumentSearchProps> = ({ onBack }) => {
 };
 
 export default DocumentSearch;
+
+

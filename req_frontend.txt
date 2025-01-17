@@ -1,0 +1,18 @@
+# Install dependencies
+npm install
+
+# If creating from scratch:
+npx create-react-app your-app-name --template typescript
+cd your-app-name
+npm install axios highcharts highcharts-react-official lucide-react tailwindcss
+
+
+#Deploy using gcloud CLI:
+
+bashCopygcloud functions deploy datagpt_api \
+  --runtime python39 \
+  --trigger-http \
+  --entry-point main \
+  --allow-unauthenticated \
+  --memory 2048MB \
+  --timeout 540s

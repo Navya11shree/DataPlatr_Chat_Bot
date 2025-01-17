@@ -1,11 +1,5 @@
-show me the DistributionAccountedCredit by journalcategory
 
-show me the  monthly trend of purchase amount
-
-show me the top 5 vendors by distribution amount
-
-
-
+#running backend and frontend seperately
   // "scripts": {
   //   "start": "react-scripts start",
   //   "build": "react-scripts build",

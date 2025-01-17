@@ -1,0 +1,36 @@
+# Dependencies
+# FastAPI framework for building APIs
+pip install fastapi
+
+# ASGI server for running FastAPI applications locally
+pip install "uvicorn[standard]"
+
+# Framework for deploying Cloud Functions on Google Cloud
+pip install functions-framework
+
+# Google Cloud BigQuery client for querying datasets and tables
+pip install google-cloud-bigquery
+
+# Library for interacting with Google's Generative AI (Gemini)
+pip install google-generativeai
+
+# Library for data manipulation and analysis (used for handling BigQuery query results)
+pip install pandas
+
+# Library for creating data visualizations and interactive charts
+pip install plotly
+
+# Library for data validation and type definitions (used with FastAPI)
+pip install pydantic
+
+
+
+
+# Install all required packages at once
+pip install fastapi "uvicorn[standard]" functions-framework google-cloud-bigquery google-generativeai pandas plotly pydantic
+
+
+
+#Run the FastAPI server:
+# Development server
+uvicorn cloudfastapi:app --reload --host 0.0.0.0 --port 8080
